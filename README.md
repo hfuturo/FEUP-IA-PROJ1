@@ -19,3 +19,7 @@ Players must employ strategic thinking and problem-solving skills to overcome ob
 Players are rewarded based on their performance, with higher scores awarded for completing levels quickly and using fewer moves. As players progress through the game, they encounter increasingly complex puzzles and new gameplay mechanics.
 ### Atmosphere and Aesthetics: 
 "Drops of Light" features immersive visuals and appealing design, creating a captivating gaming experience that draws players into its celestial world.
+
+## Links to get all the information:
+* [Internet Archive Website - Drop of Light](https://archive.org/details/msdos_Drop_of_Light_2002)
+* [Moby Games - Drop of Light](https://www.mobygames.com/game/105857/drop-of-light/)
