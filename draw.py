@@ -1,0 +1,138 @@
+import pygame
+from game_rules import RULES_TEXT
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+LIGHTGREY = (211, 211, 211)
+YELLOW = (255, 255, 0)
+PINK = (255, 0, 255)
+AQUA = (0, 255, 255)
+
+WIDTH = 800
+HEIGHT = 600
+
+class Draw:
+    def __init__(self):
+        pygame.init()
+
+        self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+
+        self.title_font = pygame.font.SysFont("Arial", 45)
+        self.normal_font = pygame.font.SysFont("Arial", 30)
+
+        pygame.display.set_caption("Drop of Light")
+
+    def draw_text(self, text, width, height, font = "normal", color = WHITE):
+        if font == "normal":
+            f = self.normal_font
+        else:
+            f = self.title_font
+
+        text_surface = f.render(text, True, color)
+        text_rect = text_surface.get_rect(center=(width,height))
+        self.screen.blit(text_surface, text_rect)
+
+        return text_rect
+
+    def update_screen(self):
+        pygame.display.flip()
+
+        
+
+
+class MainMenu(Draw):
+    def __init__(self):
+        super().__init__()
+
+        self.draw_main_menu()
+
+        self.update_screen()
+
+    def draw_main_menu(self):
+        self.screen.fill(BLACK)
+
+        self.draw_text("Drop of Light", WIDTH//2, 100, "titulo")
+
+        self.new_game = self.draw_text("New game", WIDTH//2, HEIGHT//2 - 60)
+        self.rules =  self.draw_text("Rules", WIDTH//2, HEIGHT//2 - 10)
+        self.quit = self.draw_text("Quit", WIDTH//2, HEIGHT//2 + 40)
+    
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if self.leave(event):
+                    pygame.quit()
+                    break
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.rules.collidepoint(event.pos):
+                        self.draw_rules()
+                        self.draw_main_menu()
+                        self.update_screen()
+                    
+
+    def leave(self, event):
+        return event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.quit.collidepoint(event.pos))
+    
+    def draw_rules(self):
+        i = 0
+        previous_rule = next_rule =  None
+
+        while i < len(RULES_TEXT):
+            self.screen.fill(BLACK)
+            self.draw_text("Rules", WIDTH//2, 100, "titulo")
+
+            for (rule, index) in zip(RULES_TEXT[i], range(0, len(RULES_TEXT[i]))):
+                self.draw_text(rule, WIDTH//2, HEIGHT//2 - 120 + (50 * index))
+
+            if i == 2:
+                self.draw_rule_example()
+
+            if i != 0:
+                previous_rule = self.draw_text("Previous rule", WIDTH//5, HEIGHT - 50)
+            main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT - 50)
+            if i != len(RULES_TEXT)-1:
+                next_rule = self.draw_text("Next rule", WIDTH - (WIDTH//5) , HEIGHT - 50)
+
+            self.update_screen()
+
+            run = True
+            while run:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        break
+
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if previous_rule is not None and previous_rule.collidepoint(event.pos):
+                            i -= 2
+                            run = False
+                            break
+                        if next_rule is not None and next_rule.collidepoint(event.pos):
+                            run = False
+                            break
+                        if main_menu.collidepoint(event.pos):
+                            return
+            i = max(0, i+1)
+
+    def draw_rule_example(self):
+        self.draw_rule_line(RED, GREEN, YELLOW, 0)
+        self.draw_rule_line(RED, BLUE, PINK, 50)
+        self.draw_rule_line(GREEN, BLUE, AQUA, 100)
+        self.draw_rule_line(RED, GREEN, WHITE, 150, 47.5)
+
+    def draw_rule_line(self, color1, color2, color3, paddingY, paddingX = 0):
+        pygame.draw.circle(self.screen, color1, (WIDTH // 2 - 95 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 1º circulo
+        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 60 - paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 - paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
+        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
+        pygame.draw.circle(self.screen, color2, (WIDTH // 2 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 2º circulo
+        if paddingX != 0:
+            pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 60 + paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 + paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
+            pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
+            pygame.draw.circle(self.screen, BLUE, (WIDTH // 2 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 3º circulo
+        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 35 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 35 + paddingY), 5) # resultado linha de cima
+        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 45 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 45 + paddingY), 5) # resultado linha de baixo
+        pygame.draw.circle(self.screen, color3, (WIDTH // 2 + 95 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # ultimo circulo
