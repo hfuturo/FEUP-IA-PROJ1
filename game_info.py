@@ -12,4 +12,13 @@ RULES_TEXT = [
       ["These are the primary photons: red, green, and blue.",
        "If you move primary photons on top of each other, they",
        "will blend into a compound photon:"]
-] 
+]
+
+LEVEL1 = [
+    [None, None, None],
+    [None, None, None, None],
+    [None, None, None, None, None],
+    [None, None, None, None],
+    [None, None, None],
+    9
+]

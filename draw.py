@@ -1,5 +1,6 @@
 import pygame
-from game_rules import RULES_TEXT
+from game_info import RULES_TEXT, LEVEL1
+from typing import Union
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -13,6 +14,7 @@ AQUA = (0, 255, 255)
 
 WIDTH = 800
 HEIGHT = 600
+TITLE_HEIGHT = 100
 
 class Draw:
     def __init__(self):
@@ -25,7 +27,7 @@ class Draw:
 
         pygame.display.set_caption("Drop of Light")
 
-    def draw_text(self, text, width, height, font = "normal", color = WHITE):
+    def draw_text(self, text: str, width: int, height: int, font:str = "normal", color:tuple[int, int, int] = WHITE) -> pygame.Rect:
         if font == "normal":
             f = self.normal_font
         else:
@@ -41,8 +43,6 @@ class Draw:
         pygame.display.flip()
 
         
-
-
 class MainMenu(Draw):
     def __init__(self):
         super().__init__()
@@ -51,39 +51,47 @@ class MainMenu(Draw):
 
         self.update_screen()
 
-    def draw_main_menu(self):
+    def draw_main_menu(self) -> None:
         self.screen.fill(BLACK)
 
-        self.draw_text("Drop of Light", WIDTH//2, 100, "titulo")
+        self.draw_text("Drop of Light", WIDTH//2, TITLE_HEIGHT, "titulo")
 
         self.new_game = self.draw_text("New game", WIDTH//2, HEIGHT//2 - 60)
         self.rules =  self.draw_text("Rules", WIDTH//2, HEIGHT//2 - 10)
         self.quit = self.draw_text("Quit", WIDTH//2, HEIGHT//2 + 40)
     
-    def run(self):
+    def run(self) -> Union[list, None]:
         while True:
             for event in pygame.event.get():
                 if self.leave(event):
                     pygame.quit()
-                    break
+                    return None
 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.rules.collidepoint(event.pos):
                         self.draw_rules()
                         self.draw_main_menu()
                         self.update_screen()
+
+                    if self.new_game.collidepoint(event.pos):
+                        level = self.draw_level_menu()
+                        if type(level) == list and len(level) == 0:
+                            self.draw_main_menu()
+                            self.update_screen()
+                            break
+                        return level
                     
 
-    def leave(self, event):
+    def leave(self, event: pygame.event) -> bool:
         return event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.quit.collidepoint(event.pos))
     
-    def draw_rules(self):
+    def draw_rules(self) -> None:
         i = 0
-        previous_rule = next_rule =  None
 
         while i < len(RULES_TEXT):
+            previous_rule = next_rule = None  
             self.screen.fill(BLACK)
-            self.draw_text("Rules", WIDTH//2, 100, "titulo")
+            self.draw_text("Rules", WIDTH//2, TITLE_HEIGHT, "titulo")
 
             for (rule, index) in zip(RULES_TEXT[i], range(0, len(RULES_TEXT[i]))):
                 self.draw_text(rule, WIDTH//2, HEIGHT//2 - 120 + (50 * index))
@@ -104,7 +112,8 @@ class MainMenu(Draw):
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
-                        break
+                        run = False
+                        return
 
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if previous_rule is not None and previous_rule.collidepoint(event.pos):
@@ -118,13 +127,13 @@ class MainMenu(Draw):
                             return
             i = max(0, i+1)
 
-    def draw_rule_example(self):
+    def draw_rule_example(self) -> None:
         self.draw_rule_line(RED, GREEN, YELLOW, 0)
         self.draw_rule_line(RED, BLUE, PINK, 50)
         self.draw_rule_line(GREEN, BLUE, AQUA, 100)
         self.draw_rule_line(RED, GREEN, WHITE, 150, 47.5)
 
-    def draw_rule_line(self, color1, color2, color3, paddingY, paddingX = 0):
+    def draw_rule_line(self, color1, color2, color3, paddingY, paddingX = 0) -> None:
         pygame.draw.circle(self.screen, color1, (WIDTH // 2 - 95 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 1º circulo
         pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 60 - paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 - paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
         pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
@@ -135,4 +144,36 @@ class MainMenu(Draw):
             pygame.draw.circle(self.screen, BLUE, (WIDTH // 2 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 3º circulo
         pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 35 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 35 + paddingY), 5) # resultado linha de cima
         pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 45 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 45 + paddingY), 5) # resultado linha de baixo
-        pygame.draw.circle(self.screen, color3, (WIDTH // 2 + 95 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # ultimo circulo
+        pygame.draw.circle(self.screen, color3, (WIDTH // 2 + 95 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # ultimo circulo 
+
+    def draw_level_menu(self) -> Union[list, None]:
+        self.screen.fill(BLACK)
+
+        self.draw_text("Choose a level", WIDTH//2, TITLE_HEIGHT, "titulo")
+        level1 = self.draw_text("Level 1", WIDTH//2, HEIGHT//2 - 60)
+        level2 = self.draw_text("Level 2", WIDTH//2, HEIGHT//2 - 10)
+        level3 = self.draw_text("Level 3", WIDTH//2, HEIGHT//2 + 40)
+        main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT - 50)
+
+        self.update_screen()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return None
+                
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if main_menu.collidepoint(event.pos):
+                        return []
+
+                    if level1.collidepoint(event.pos):
+                        return LEVEL1
+
+                    if level2.collidepoint(event.pos):
+                        pass
+
+                    if level3.collidepoint(event.pos):
+                        pass
+
+        

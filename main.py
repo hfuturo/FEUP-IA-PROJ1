@@ -1,6 +1,11 @@
 import draw
 
 if __name__ == "__main__":
-    menu = draw.MainMenu()
-    
-    menu.run()
+    while True:
+        menu = draw.MainMenu()
+        level = menu.run()
+        if level is None:
+            break
+        
+
+        
