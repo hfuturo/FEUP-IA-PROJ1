@@ -1,8 +1,6 @@
 import pygame
 from game_info import RULES_TEXT, LEVEL1
 from typing import Union
-import math
-import time
 
 BLACK = (0, 0, 0)               
 LIGHTGREY = (211, 211, 211) 
@@ -185,7 +183,6 @@ class Game(Draw):
     def __init__(self, board: list) -> None:
         super().__init__()
         self.board, self.energy, self.title = self.parse_board(board)
-        print(self.board)
         self.draw_game()
 
     def parse_board(self, board:list) -> tuple[list, int]:
@@ -205,7 +202,6 @@ class Game(Draw):
             self.draw_forth_row()
             self.draw_fifth_row()
             self.update_screen()
-            time.sleep(600)
 
     def draw_energy(self) -> None:
         self.draw_text("Energy", 100, TITLE_HEIGHT + 50)
@@ -254,4 +250,11 @@ class Game(Draw):
     def get_circle_color(self, color:tuple[int, int, int]) -> tuple[int, int, int]:
         colors = [GREY, RED, GREEN, BLUE, WHITE, YELLOW, PINK, AQUA]
         return colors[color]
+    
+    def run(self) -> None:
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return None                    
 
