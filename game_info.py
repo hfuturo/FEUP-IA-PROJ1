@@ -15,10 +15,11 @@ RULES_TEXT = [
 ]
 
 LEVEL1 = [
-    [None, None, None],
-    [None, None, None, None],
-    [None, None, None, None, None],
-    [None, None, None, None],
-    [None, None, None],
-    9
+    [0, 1, 0],
+    [1, 1, 0, 2],
+    [0, 0, 0, 2, 0],
+    [3, 3, 0, 2],
+    [0, 3, 0],
+    9,
+    "Level 1: Finger Painting"
 ]

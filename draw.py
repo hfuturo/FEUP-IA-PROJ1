@@ -1,23 +1,27 @@
 import pygame
 from game_info import RULES_TEXT, LEVEL1
 from typing import Union
+import math
+import time
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-LIGHTGREY = (211, 211, 211)
-YELLOW = (255, 255, 0)
-PINK = (255, 0, 255)
-AQUA = (0, 255, 255)
+BLACK = (0, 0, 0)               
+LIGHTGREY = (211, 211, 211) 
+GREY = (128, 128, 128)
+DARKGREY = (169, 169, 169)
+RED = (255, 0, 0)               #1
+GREEN = (0, 255, 0)             #2
+BLUE = (0, 0, 255)              #3
+WHITE = (255, 255, 255)         #4    
+YELLOW = (255, 255, 0)          #5
+PINK = (255, 0, 255)            #6
+AQUA = (0, 255, 255)            #7
 
 WIDTH = 800
 HEIGHT = 600
 TITLE_HEIGHT = 100
 
 class Draw:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
 
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -39,12 +43,12 @@ class Draw:
 
         return text_rect
 
-    def update_screen(self):
+    def update_screen(self) -> None:
         pygame.display.flip()
 
         
 class MainMenu(Draw):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.draw_main_menu()
@@ -176,4 +180,78 @@ class MainMenu(Draw):
                     if level3.collidepoint(event.pos):
                         pass
 
+
+class Game(Draw):
+    def __init__(self, board: list) -> None:
+        super().__init__()
+        self.board, self.energy, self.title = self.parse_board(board)
+        print(self.board)
+        self.draw_game()
+
+    def parse_board(self, board:list) -> tuple[list, int]:
+        l = []
+        for i in range(0, len(board)):
+            if i == len(board)-2:
+                return (l,board[i],board[i+1])
+            l.append([self.get_circle_color(cell) for cell in board[i]])
+
+    def draw_game(self) -> None:
+            self.draw_text(self.title, WIDTH//2, 50, "titulo")
+            self.draw_energy()
+            self.draw_lines() # desenha linhas primeiro para circulos tapar o excesso
+            self.draw_first_row()
+            self.draw_second_row()
+            self.draw_third_row()
+            self.draw_forth_row()
+            self.draw_fifth_row()
+            self.update_screen()
+            time.sleep(600)
+
+    def draw_energy(self) -> None:
+        self.draw_text("Energy", 100, TITLE_HEIGHT + 50)
+        self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 80, "normal", YELLOW)
+
+    def draw_first_row(self) -> None:
+        pygame.draw.circle(self.screen, self.board[0][0], (WIDTH//2 - 130, 150), 20)
+        pygame.draw.circle(self.screen, self.board[0][1], (WIDTH//2, 210), 20)
+        pygame.draw.circle(self.screen, self.board[0][2], (WIDTH//2 + 130, 150), 20)
+
+    def draw_second_row(self) -> None:
+        pygame.draw.circle(self.screen, self.board[1][0], (WIDTH//2 - 130, 270), 20)
+        pygame.draw.circle(self.screen, self.board[1][1], (WIDTH//2 - 65, 240), 20)
+        pygame.draw.circle(self.screen, self.board[1][2], (WIDTH//2 + 65, 240), 20)
+        pygame.draw.circle(self.screen, self.board[1][3], (WIDTH//2 + 130, 270), 20)
+
+    def draw_third_row(self) -> None:
+        pygame.draw.circle(self.screen, self.board[2][0], (WIDTH//2 - 260, 330), 20)
+        pygame.draw.circle(self.screen, self.board[2][1], (WIDTH//2 - 130, 330), 20)
+        pygame.draw.circle(self.screen, self.board[2][2], (WIDTH//2, 330), 20)
+        pygame.draw.circle(self.screen, self.board[2][3], (WIDTH//2 + 130, 330), 20)
+        pygame.draw.circle(self.screen, self.board[2][4], (WIDTH//2 + 260, 330), 20)
+
+    def draw_forth_row(self) -> None:
+        pygame.draw.circle(self.screen, self.board[3][0], (WIDTH//2 - 130, 390), 20)
+        pygame.draw.circle(self.screen, self.board[3][1], (WIDTH//2 - 65, 420), 20)
+        pygame.draw.circle(self.screen, self.board[3][2], (WIDTH//2 + 65, 420), 20)
+        pygame.draw.circle(self.screen, self.board[3][3], (WIDTH//2 + 130, 390), 20)
+
+    def draw_fifth_row(self) -> None:
+        pygame.draw.circle(self.screen, self.board[4][0], (WIDTH//2 - 130, 510), 20)
+        pygame.draw.circle(self.screen, self.board[4][1], (WIDTH//2, 450), 20)
+        pygame.draw.circle(self.screen, self.board[4][2], (WIDTH//2 + 130, 510), 20)
+
+    def draw_lines(self) -> None:
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510), 5) #[0][0] -> [4][0]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510), 5) #[0][0] -> [4][2] 
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 260, 330), 5) #[0][0] -> [2][4]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 - 130, 510), 5) #[0][2] -> [4][0]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 + 130, 510), 5) #[0][2] -> [4][2]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 150), 5) #[2][0] -> [0][2]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 260, 330), 5) #[2][0] -> [2][4]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
         
+    def get_circle_color(self, color:tuple[int, int, int]) -> tuple[int, int, int]:
+        colors = [GREY, RED, GREEN, BLUE, WHITE, YELLOW, PINK, AQUA]
+        return colors[color]
+

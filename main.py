@@ -6,6 +6,8 @@ if __name__ == "__main__":
         level = menu.run()
         if level is None:
             break
-        
+
+        draw.Game(level)
+
 
         
