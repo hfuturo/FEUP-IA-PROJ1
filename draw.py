@@ -1,22 +1,23 @@
 import pygame
+import drop_of_light as dol
 from game_info import RULES_TEXT, LEVEL1
 from typing import Union
 
-BLACK = (0, 0, 0)               
-LIGHTGREY = (211, 211, 211) 
-GREY = (128, 128, 128)
-DARKGREY = (169, 169, 169)
-RED = (255, 0, 0)               #1
-GREEN = (0, 255, 0)             #2
-BLUE = (0, 0, 255)              #3
-WHITE = (255, 255, 255)         #4    
-YELLOW = (255, 255, 0)          #5
-PINK = (255, 0, 255)            #6
-AQUA = (0, 255, 255)            #7
+BLACK: tuple[int, int, int] = (0, 0, 0)               
+DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
+LIGHTGREY: tuple[int, int, int] = (211, 211, 211)     # para exemplos das regras
+GREY: tuple[int, int, int] = (128, 128, 128)          #0
+RED: tuple[int, int, int] = (255, 0, 0)               #1
+GREEN: tuple[int, int, int] = (0, 255, 0)             #2
+BLUE: tuple[int, int, int] = (0, 0, 255)              #3
+WHITE: tuple[int, int, int] = (255, 255, 255)         #4    
+YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
+PINK: tuple[int, int, int] = (255, 0, 255)            #6
+AQUA: tuple[int, int, int] = (0, 255, 255)            #7
 
-WIDTH = 800
-HEIGHT = 600
-TITLE_HEIGHT = 100
+WIDTH: int = 800
+HEIGHT: int = 600
+TITLE_HEIGHT: int = 100
 
 class Draw:
     def __init__(self) -> None:
@@ -179,62 +180,116 @@ class MainMenu(Draw):
                         pass
 
 
+class FinalMenu(Draw):
+    def __init__(self, title:str) -> None:
+        super().__init__()
+
+        self.play_again, self.main_menu = self.draw_menu(title)
+
+    def draw_menu(self, title:str) -> tuple[pygame.Rect, pygame.Rect]:
+        self.screen.fill(BLACK)
+        self.draw_text(title, WIDTH//2, TITLE_HEIGHT, "titulo")
+        play_again = self.draw_text("Play Again", WIDTH//2, HEIGHT//2 - 60)
+        main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT//2 - 10)
+        self.update_screen()
+
+        return play_again, main_menu
+
+    def run(self) -> Union[None, int]:
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return None
+                
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.play_again.collidepoint(event.pos):
+                        return 0
+                    if self.main_menu.collidepoint(event.pos):
+                        return 1
+
 class Game(Draw):
     def __init__(self, board: list) -> None:
         super().__init__()
-        self.board, self.energy, self.title = self.parse_board(board)
-        self.draw_game()
+        self.level_info = board
+        self.board, self.energy, image_path, self.title, self.goal = self.parse_level(board)
+        self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
+        self.rects, self.reset = self.draw_game()
 
-    def parse_board(self, board:list) -> tuple[list, int]:
-        l = []
-        for i in range(0, len(board)):
-            if i == len(board)-2:
-                return (l,board[i],board[i+1])
-            l.append([self.get_circle_color(cell) for cell in board[i]])
-
-    def draw_game(self) -> None:
+    def parse_level(self, level:list) -> tuple[list, int, str, str, list]:
+        board = []
+        goal = []
+        for row in level[0]:
+            board.append([self.get_circle_color(cell) for cell in row])
+        for row in level[4]:
+            goal.append([self.get_circle_color(cell) for cell in row])
+        
+        return board, level[1], level[2], level[3], goal
+                
+    def draw_game(self) -> tuple[list, pygame.Rect]:
             self.draw_text(self.title, WIDTH//2, 50, "titulo")
+            l = []
             self.draw_energy()
+            reset = self.draw_reset()
+            self.draw_goal()
             self.draw_lines() # desenha linhas primeiro para circulos tapar o excesso
-            self.draw_first_row()
-            self.draw_second_row()
-            self.draw_third_row()
-            self.draw_forth_row()
-            self.draw_fifth_row()
+            l.append(self.draw_first_row())
+            l.append(self.draw_second_row())
+            l.append(self.draw_third_row())
+            l.append(self.draw_forth_row())
+            l.append(self.draw_fifth_row())
             self.update_screen()
 
+            return l, reset
+    
+    def draw_goal(self) -> None:
+        self.draw_text("Goal:", WIDTH//2 + 295, TITLE_HEIGHT + 15)
+        self.screen.blit(self.image, (WIDTH//2 + 200, 130))
+
     def draw_energy(self) -> None:
-        self.draw_text("Energy", 100, TITLE_HEIGHT + 50)
-        self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 80, "normal", YELLOW)
+        self.draw_text("Energy", 100, TITLE_HEIGHT + 15)
+        self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 45, "normal", YELLOW)
 
-    def draw_first_row(self) -> None:
-        pygame.draw.circle(self.screen, self.board[0][0], (WIDTH//2 - 130, 150), 20)
-        pygame.draw.circle(self.screen, self.board[0][1], (WIDTH//2, 210), 20)
-        pygame.draw.circle(self.screen, self.board[0][2], (WIDTH//2 + 130, 150), 20)
+    def draw_reset(self) -> pygame.Rect:
+        return self.draw_text("Reset level", 100, HEIGHT//2 + 200)
 
-    def draw_second_row(self) -> None:
-        pygame.draw.circle(self.screen, self.board[1][0], (WIDTH//2 - 130, 270), 20)
-        pygame.draw.circle(self.screen, self.board[1][1], (WIDTH//2 - 65, 240), 20)
-        pygame.draw.circle(self.screen, self.board[1][2], (WIDTH//2 + 65, 240), 20)
-        pygame.draw.circle(self.screen, self.board[1][3], (WIDTH//2 + 130, 270), 20)
+    def draw_first_row(self) -> list:
+        l = []
+        l.append(pygame.draw.circle(self.screen, self.board[0][0], (WIDTH//2 - 130, 150), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[0][1], (WIDTH//2, 210), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[0][2], (WIDTH//2 + 130, 150), 20))
+        return l
 
-    def draw_third_row(self) -> None:
-        pygame.draw.circle(self.screen, self.board[2][0], (WIDTH//2 - 260, 330), 20)
-        pygame.draw.circle(self.screen, self.board[2][1], (WIDTH//2 - 130, 330), 20)
-        pygame.draw.circle(self.screen, self.board[2][2], (WIDTH//2, 330), 20)
-        pygame.draw.circle(self.screen, self.board[2][3], (WIDTH//2 + 130, 330), 20)
-        pygame.draw.circle(self.screen, self.board[2][4], (WIDTH//2 + 260, 330), 20)
+    def draw_second_row(self) -> list:
+        l = []
+        l.append(pygame.draw.circle(self.screen, self.board[1][0], (WIDTH//2 - 130, 270), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[1][1], (WIDTH//2 - 65, 240), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[1][2], (WIDTH//2 + 65, 240), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[1][3], (WIDTH//2 + 130, 270), 20))
+        return l
 
-    def draw_forth_row(self) -> None:
-        pygame.draw.circle(self.screen, self.board[3][0], (WIDTH//2 - 130, 390), 20)
-        pygame.draw.circle(self.screen, self.board[3][1], (WIDTH//2 - 65, 420), 20)
-        pygame.draw.circle(self.screen, self.board[3][2], (WIDTH//2 + 65, 420), 20)
-        pygame.draw.circle(self.screen, self.board[3][3], (WIDTH//2 + 130, 390), 20)
+    def draw_third_row(self) -> list:
+        l = []
+        l.append(pygame.draw.circle(self.screen, self.board[2][0], (WIDTH//2 - 260, 330), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[2][1], (WIDTH//2 - 130, 330), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[2][2], (WIDTH//2, 330), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[2][3], (WIDTH//2 + 130, 330), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[2][4], (WIDTH//2 + 260, 330), 20))
+        return l
 
-    def draw_fifth_row(self) -> None:
-        pygame.draw.circle(self.screen, self.board[4][0], (WIDTH//2 - 130, 510), 20)
-        pygame.draw.circle(self.screen, self.board[4][1], (WIDTH//2, 450), 20)
-        pygame.draw.circle(self.screen, self.board[4][2], (WIDTH//2 + 130, 510), 20)
+    def draw_forth_row(self) -> list:
+        l = []
+        l.append(pygame.draw.circle(self.screen, self.board[3][0], (WIDTH//2 - 130, 390), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[3][1], (WIDTH//2 - 65, 420), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[3][2], (WIDTH//2 + 65, 420), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[3][3], (WIDTH//2 + 130, 390), 20))
+        return l
+
+    def draw_fifth_row(self) -> list:
+        l = []
+        l.append(pygame.draw.circle(self.screen, self.board[4][0], (WIDTH//2 - 130, 510), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[4][1], (WIDTH//2, 450), 20))
+        l.append(pygame.draw.circle(self.screen, self.board[4][2], (WIDTH//2 + 130, 510), 20))
+        return l
 
     def draw_lines(self) -> None:
         pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510), 5) #[0][0] -> [4][0]
@@ -251,10 +306,52 @@ class Game(Draw):
         colors = [GREY, RED, GREEN, BLUE, WHITE, YELLOW, PINK, AQUA]
         return colors[color]
     
-    def run(self) -> None:
+    def reset_level(self, game:dol) -> None:
+        self.board, self.energy, _, self.title, self.goal = self.parse_level(self.level_info)
+        game.reset(self.board, self.energy)
+        self.screen.fill(BLACK)
+        self.rects, self.reset = self.draw_game()
+
+    def run(self) -> Union[None, int]:
+        game = dol.DropOfLight(self.board, self.goal, self.energy)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return None                    
+                    return None
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.reset.collidepoint(event.pos):
+                        self.reset_level(game)
+                        continue
+
+                    for i in range(0, len(self.rects)):
+                        for j in range(0, len(self.rects[i])):
+                            if self.rects[i][j].collidepoint(event.pos):
+                                ret = game.handle_piece_selected((i,j))
+                                if ret is None:
+                                    break
+                                self.board, self.energy = ret
+                                self.screen.fill(BLACK)
+
+                                # win
+                                if self.board == []:
+                                    win_menu = FinalMenu("You Won")
+                                    ret = win_menu.run()
+                                    if ret != 0:
+                                        return ret
+                                    self.reset_level(game)
+                                    
+                                # lose
+                                if self.energy == 0:
+                                    lose_menu = FinalMenu("You Lost")
+                                    ret = lose_menu.run()
+                                    if ret != 0:
+                                        return ret
+                                    self.reset_level(game)
+
+                                self.rects, self.reset = self.draw_game()
+
+
 

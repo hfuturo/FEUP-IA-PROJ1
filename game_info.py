@@ -1,4 +1,4 @@
-RULES_TEXT = [
+RULES_TEXT:list = [
     ["Objective: Rearrange the photons in the grid",
      "to match the Goal grid before running out of energy.",
      "Sounds simple enough, right?"],
@@ -14,12 +14,29 @@ RULES_TEXT = [
        "will blend into a compound photon:"]
 ]
 
-LEVEL1 = [
-    [0, 1, 0],
-    [1, 1, 0, 2],
-    [0, 0, 0, 2, 0],
-    [3, 3, 0, 2],
-    [0, 3, 0],
+# estrutra de LEVEL
+# [0] -> board inicial
+# [1] -> energia do nivel
+# [2] -> path para a imagem do objetivo
+# [3] -> titulo do nivel
+# [4] -> board objetivo
+
+LEVEL1:list = [
+    [
+        [0, 1, 0],
+        [1, 1, 0, 2],
+        [0, 0, 0, 2, 0],
+        [3, 3, 0, 2],
+        [0, 3, 0]
+    ],
     9,
-    "Level 1: Finger Painting"
+    "./images/lvl1goal.png",
+    "Level 1: Finger Painting",
+    [
+        [0, 0, 0],
+        [0, 0, 5, 0],
+        [0, 6, 4, 0, 0],
+        [0, 0, 7, 0],
+        [0, 0, 0]
+    ]
 ]
