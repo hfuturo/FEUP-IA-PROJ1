@@ -15,6 +15,7 @@ WHITE: tuple[int, int, int] = (255, 255, 255)         #4
 YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
 PINK: tuple[int, int, int] = (255, 0, 255)            #6
 AQUA: tuple[int, int, int] = (0, 255, 255)            #7
+ORANGE: tuple[int, int, int] = (255, 165, 0)         # highlight
 
 WIDTH: int = 800
 HEIGHT: int = 600
@@ -320,7 +321,7 @@ class Game(Draw):
         self.screen.fill(BLACK)
         self.rects, self.reset, self.undo_button = self.draw_game()
 
-    def undo(self, game:dol):
+    def undo(self, game:dol) -> None:
         self.screen.fill(BLACK)
         self.board = deepcopy(self.prev_board)
         self.prev_board = None
@@ -329,8 +330,28 @@ class Game(Draw):
         self.rects, self.reset, self.undo_button = self.draw_game();
         self.update_screen()
 
+    def highlight_selected(self, highlight:bool, center:tuple[int, int], coords_circle:tuple[int, int]) -> tuple[int, int]:
+        i,j = coords_circle
+
+        if highlight is False and self.board[i][j] != GREY:
+            highlight = True
+            center = (i,j)
+            pygame.draw.circle(self.screen, ORANGE, self.rects[i][j].center, 23)
+            pygame.draw.circle(self.screen, self.board[i][j], self.rects[i][j].center, 20)
+            self.update_screen()
+        elif highlight is True and (i,j) == center:
+            highlight = False
+            center = None
+            self.screen.fill(BLACK)
+            self.rects, self.reset, self.undo_button = self.draw_game()
+
+        return highlight, center
+
     def run(self) -> Union[None, int]:
         game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy)
+
+        highlight = False
+        center = None
 
         while True:
             for event in pygame.event.get():
@@ -350,10 +371,16 @@ class Game(Draw):
                     for i in range(0, len(self.rects)):
                         for j in range(0, len(self.rects[i])):
                             if self.rects[i][j].collidepoint(event.pos):
+
+                                #highlight a circulo que user clique
+                                highlight, center = self.highlight_selected(highlight, center, (i,j))
+
                                 ret = game.handle_piece_selected((i,j))
                                 if ret is None:
                                     break
                                 
+                                center = None
+                                highlight = False
                                 self.prev_board = deepcopy(self.board)
                                 self.board, self.energy = ret
                                 self.screen.fill(BLACK)
