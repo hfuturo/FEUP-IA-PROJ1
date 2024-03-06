@@ -1,4 +1,5 @@
 from typing import Union
+from copy import deepcopy
         
 GREY: tuple[int, int, int] = (128, 128, 128)          #0
 RED: tuple[int, int, int] = (255, 0, 0)               #1
@@ -48,7 +49,7 @@ COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[in
 
 class DropOfLight:
     def __init__(self, board: list, goal: list, energy: int) -> None:
-        self.board = board
+        self.board = deepcopy(board)
         self.goal = goal
         self.energy = energy
 
@@ -56,7 +57,7 @@ class DropOfLight:
         self.second_piece = None
 
     def reset(self, board:list, energy:int) -> None:
-        self.board = board
+        self.board = deepcopy(board)
         self.energy = energy
         self.first_piece = None
         self.second_piece = None
@@ -89,9 +90,9 @@ class DropOfLight:
         if self.check_win():
             return [], self.energy
         if self.energy == 0:
-            return self.board, 0
+            return deepcopy(self.board), 0
         
-        return self.board, self.energy
+        return deepcopy(self.board), self.energy
         
 
     def check_move(self) -> bool:

@@ -2,6 +2,7 @@ import pygame
 import drop_of_light as dol
 from game_info import RULES_TEXT, LEVEL1
 from typing import Union
+from copy import deepcopy
 
 BLACK: tuple[int, int, int] = (0, 0, 0)               
 DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
@@ -213,7 +214,8 @@ class Game(Draw):
         self.level_info = board
         self.board, self.energy, image_path, self.title, self.goal = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
-        self.rects, self.reset = self.draw_game()
+        self.prev_board = None
+        self.rects, self.reset, self.undo_button = self.draw_game()
 
     def parse_level(self, level:list) -> tuple[list, int, str, str, list]:
         board = []
@@ -230,6 +232,9 @@ class Game(Draw):
             l = []
             self.draw_energy()
             reset = self.draw_reset()
+            undo = None
+            if self.prev_board is not None:
+                undo = self.draw_undo()
             self.draw_goal()
             self.draw_lines() # desenha linhas primeiro para circulos tapar o excesso
             l.append(self.draw_first_row())
@@ -239,7 +244,10 @@ class Game(Draw):
             l.append(self.draw_fifth_row())
             self.update_screen()
 
-            return l, reset
+            return l, reset, undo
+    
+    def draw_undo(self):
+        return self.draw_text("Undo", 100, HEIGHT//2 + 170)
     
     def draw_goal(self) -> None:
         self.draw_text("Goal:", WIDTH//2 + 295, TITLE_HEIGHT + 15)
@@ -308,12 +316,21 @@ class Game(Draw):
     
     def reset_level(self, game:dol) -> None:
         self.board, self.energy, _, self.title, self.goal = self.parse_level(self.level_info)
-        game.reset(self.board, self.energy)
+        game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(BLACK)
-        self.rects, self.reset = self.draw_game()
+        self.rects, self.reset, self.undo_button = self.draw_game()
+
+    def undo(self, game:dol):
+        self.screen.fill(BLACK)
+        self.board = deepcopy(self.prev_board)
+        self.prev_board = None
+        self.energy += 1
+        game.reset(deepcopy(self.board), self.energy)
+        self.rects, self.reset, self.undo_button = self.draw_game();
+        self.update_screen()
 
     def run(self) -> Union[None, int]:
-        game = dol.DropOfLight(self.board, self.goal, self.energy)
+        game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy)
 
         while True:
             for event in pygame.event.get():
@@ -326,12 +343,18 @@ class Game(Draw):
                         self.reset_level(game)
                         continue
 
+                    if self.undo_button is not None and self.undo_button.collidepoint(event.pos):
+                        self.undo(game)
+                        continue
+
                     for i in range(0, len(self.rects)):
                         for j in range(0, len(self.rects[i])):
                             if self.rects[i][j].collidepoint(event.pos):
                                 ret = game.handle_piece_selected((i,j))
                                 if ret is None:
                                     break
+                                
+                                self.prev_board = deepcopy(self.board)
                                 self.board, self.energy = ret
                                 self.screen.fill(BLACK)
 
@@ -351,7 +374,7 @@ class Game(Draw):
                                         return ret
                                     self.reset_level(game)
 
-                                self.rects, self.reset = self.draw_game()
+                                self.rects, self.reset, self.undo_button = self.draw_game()
 
 
 
