@@ -391,6 +391,7 @@ class Game(Draw):
                                     ret = win_menu.run()
                                     if ret != 0:
                                         return ret
+                                    self.prev_board = None
                                     self.reset_level(game)
                                     
                                 # lose
@@ -399,6 +400,7 @@ class Game(Draw):
                                     ret = lose_menu.run()
                                     if ret != 0:
                                         return ret
+                                    self.prev_board = None
                                     self.reset_level(game)
 
                                 self.rects, self.reset, self.undo_button = self.draw_game()
