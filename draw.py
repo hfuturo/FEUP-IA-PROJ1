@@ -1,8 +1,10 @@
 import pygame
+import algorithms
 import drop_of_light as dol
-from game_info import RULES_TEXT, LEVEL1
+from game_info import RULES_TEXT, LEVEL1, LEVEL2
 from typing import Union
 from copy import deepcopy
+from time import sleep
 
 BLACK: tuple[int, int, int] = (0, 0, 0)               
 DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
@@ -176,7 +178,7 @@ class MainMenu(Draw):
                         return LEVEL1
 
                     if level2.collidepoint(event.pos):
-                        pass
+                        return LEVEL2
 
                     if level3.collidepoint(event.pos):
                         pass
@@ -241,8 +243,8 @@ class Game(Draw):
             l.append(self.draw_first_row())
             l.append(self.draw_second_row())
             l.append(self.draw_third_row())
-            l.append(self.draw_forth_row())
-            l.append(self.draw_fifth_row())
+            # l.append(self.draw_forth_row())
+            # l.append(self.draw_fifth_row())
             self.update_screen()
 
             return l, reset, undo
@@ -368,6 +370,29 @@ class Game(Draw):
                         self.undo(game)
                         continue
 
+                    bfs = algorithms.Algorithm(self.board, self.goal, self.energy)
+                    print("chega")
+                    ret = bfs.DFS()
+                    print("aqui")
+                    if ret is not None:
+                        print("not")
+                    else:
+                        print("None")
+
+                    l = []
+                    while ret:
+                        l.append(ret.state)
+                        ret = ret.parent
+
+                    l.reverse()
+                    for i in l:
+                        self.board = i
+                        self.draw_game()
+                        self.update_screen()
+                        print("Updated")
+                        sleep(1)
+
+                    # print("CHEGOU")
                     for i in range(0, len(self.rects)):
                         for j in range(0, len(self.rects[i])):
                             if self.rects[i][j].collidepoint(event.pos):
