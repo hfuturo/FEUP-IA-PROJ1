@@ -20,8 +20,26 @@ RULES_TEXT:list = [
 # [2] -> path para a imagem do objetivo
 # [3] -> titulo do nivel
 # [4] -> board objetivo
+# [5] -> altura da board
 
 LEVEL1:list = [
+    [
+        [0, 1, 0],
+        [0, 0, 0, 2],
+        [3, 0, 0, 2, 0]
+    ],
+    8,
+    "./images/lvl1goal.png",
+    "Level 1: Finger Painting",
+    [
+        [2, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 4, 0, 0]
+    ],
+    3
+]
+
+LEVEL2:list = [
     [
         [0, 1, 0],
         [1, 1, 0, 2],
@@ -30,7 +48,7 @@ LEVEL1:list = [
         [0, 3, 0]
     ],
     9,
-    "./images/lvl1goal.png",
+    "./images/lvl2goal.png",
     "Level 1: Finger Painting",
     [
         [0, 0, 0],
@@ -38,21 +56,7 @@ LEVEL1:list = [
         [0, 6, 4, 0, 0],
         [0, 0, 7, 0],
         [0, 0, 0]
-    ]
-]
-
-LEVEL2:list = [
-    [
-        [0, 1, 0],
-        [0, 0, 0, 2],
-        [3, 0, 0, 2, 0]
     ],
-    9,
-    "./images/lvl2goal.png",
-    "Level 1: Finger Painting",
-    [
-        [2, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 4, 0, 0]
-    ]
+    5
+
 ]

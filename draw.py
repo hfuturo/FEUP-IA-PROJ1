@@ -25,8 +25,6 @@ TITLE_HEIGHT: int = 100
 
 class Draw:
     def __init__(self) -> None:
-        pygame.init()
-
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
         self.title_font = pygame.font.SysFont("Arial", 45)
@@ -215,7 +213,7 @@ class Game(Draw):
     def __init__(self, board: list) -> None:
         super().__init__()
         self.level_info = board
-        self.board, self.energy, image_path, self.title, self.goal = self.parse_level(board)
+        self.board, self.energy, image_path, self.title, self.goal, self.max_height = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
         self.prev_board = None
         self.rects, self.reset, self.undo_button = self.draw_game()
@@ -228,7 +226,7 @@ class Game(Draw):
         for row in level[4]:
             goal.append([self.get_circle_color(cell) for cell in row])
         
-        return board, level[1], level[2], level[3], goal
+        return board, level[1], level[2], level[3], goal, level[5]
                 
     def draw_game(self) -> tuple[list, pygame.Rect]:
             self.draw_text(self.title, WIDTH//2, 50, "titulo")
@@ -243,8 +241,9 @@ class Game(Draw):
             l.append(self.draw_first_row())
             l.append(self.draw_second_row())
             l.append(self.draw_third_row())
-            # l.append(self.draw_forth_row())
-            # l.append(self.draw_fifth_row())
+            if (self.max_height > 3):
+                l.append(self.draw_forth_row())
+                l.append(self.draw_fifth_row())
             self.update_screen()
 
             return l, reset, undo
@@ -303,22 +302,23 @@ class Game(Draw):
         return l
 
     def draw_lines(self) -> None:
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510), 5) #[0][0] -> [4][0]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510), 5) #[0][0] -> [4][2] 
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510 if self.max_height > 3 else 330), 5) #[0][0] -> [4][0]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][0] -> [4][2] 
         pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 260, 330), 5) #[0][0] -> [2][4]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 - 130, 510), 5) #[0][2] -> [4][0]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 + 130, 510), 5) #[0][2] -> [4][2]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 - 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][2] -> [4][0]
+        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 + 130, 510 if self.max_height > 3 else 330), 5) #[0][2] -> [4][2]
         pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 150), 5) #[2][0] -> [0][2]
         pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 260, 330), 5) #[2][0] -> [2][4]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
+        if self.max_height > 3:
+            pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
+            pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
         
     def get_circle_color(self, color:tuple[int, int, int]) -> tuple[int, int, int]:
         colors = [GREY, RED, GREEN, BLUE, WHITE, YELLOW, PINK, AQUA]
         return colors[color]
     
     def reset_level(self, game:dol) -> None:
-        self.board, self.energy, _, self.title, self.goal = self.parse_level(self.level_info)
+        self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(BLACK)
         self.rects, self.reset, self.undo_button = self.draw_game()
@@ -350,7 +350,7 @@ class Game(Draw):
         return highlight, center
 
     def run(self) -> Union[None, int]:
-        game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy)
+        game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy, self.max_height)
 
         highlight = False
         center = None
@@ -370,10 +370,10 @@ class Game(Draw):
                         self.undo(game)
                         continue
 
-                    bfs = algorithms.Algorithm(self.board, self.goal, self.energy)
-                    print("chega")
-                    ret = bfs.DFS()
-                    print("aqui")
+                    bfs = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
+
+                    ret = bfs.BFS()
+
                     if ret is not None:
                         print("not")
                     else:
@@ -392,7 +392,6 @@ class Game(Draw):
                         print("Updated")
                         sleep(1)
 
-                    # print("CHEGOU")
                     for i in range(0, len(self.rects)):
                         for j in range(0, len(self.rects[i])):
                             if self.rects[i][j].collidepoint(event.pos):

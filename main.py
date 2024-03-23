@@ -1,6 +1,9 @@
+import pygame
 import draw
 
 if __name__ == "__main__":
+    pygame.init()
+
     while True:
         menu = draw.MainMenu()
         level = menu.run()
@@ -10,7 +13,6 @@ if __name__ == "__main__":
         game = draw.Game(level)
         ret = game.run()
         if ret is None:
-            break
+            break   
 
-
-        
+    pygame.quit()     
