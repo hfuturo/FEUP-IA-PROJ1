@@ -14,14 +14,63 @@ RULES_TEXT:list = [
        "will blend into a compound photon:"]
 ]
 
-# estrutra de LEVEL
+POSSIBLE_MOVES: dict[tuple[int, int], list[tuple[int, int]]] = {
+    (0,0): [(0,1), (1,0), (1,1)],
+    (0,1): [(0,0), (0,2), (1,1), (1,2)],
+    (0,2): [(0,1), (1,2), (1,3)],
+    (1,0): [(0,0), (1,1), (2,0), (2,1)],
+    (1,1): [(0,0), (0,1), (1,0), (2,2)],
+    (1,2): [(0,1), (0,2), (1,3), (2,2)],
+    (1,3): [(0,2), (1,2), (2,3), (2,4)],
+    (2,0): [(1,0), (2,1), (3,0)],
+    (2,1): [(1,0), (2,0), (2,2), (3,0)],
+    (2,2): [(1,1), (1,2), (2,1), (2,3), (3,1), (3,2)],
+    (2,3): [(1,3), (2,2), (2,4), (3,3)],
+    (2,4): [(1,3), (2,3), (3,3)],
+    (3,0): [(2,0), (2,1), (3,1), (4,0)],
+    (3,1): [(2,2), (3,0), (4,0), (4,1)],
+    (3,2): [(2,2), (3,3), (4,1), (4,2)],
+    (3,3): [(2,3), (2,4), (3,2), (4,2)],
+    (4,0): [(3,0), (3,1), (4,1)],
+    (4,1): [(3,1), (3,2), (4,0), (4,2)],
+    (4,2): [(3,2), (3,3), (4,1)]
+}
+
+BLACK: tuple[int, int, int] = (0, 0, 0)               
+DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
+LIGHTGREY: tuple[int, int, int] = (211, 211, 211)     # para exemplos das regras
+GREY: tuple[int, int, int] = (128, 128, 128)          #0
+RED: tuple[int, int, int] = (255, 0, 0)               #1
+GREEN: tuple[int, int, int] = (0, 255, 0)             #2
+BLUE: tuple[int, int, int] = (0, 0, 255)              #3
+WHITE: tuple[int, int, int] = (255, 255, 255)         #4    
+YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
+PINK: tuple[int, int, int] = (255, 0, 255)            #6
+AQUA: tuple[int, int, int] = (0, 255, 255)            #7
+ORANGE: tuple[int, int, int] = (255, 165, 0)         # highlight
+
+COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[int, int, int]] = {
+    (RED, GREEN): YELLOW,
+    (GREEN, RED): YELLOW,
+    (RED, BLUE): PINK,
+    (BLUE, RED): PINK,
+    (GREEN, BLUE): AQUA,
+    (BLUE, GREEN): AQUA,
+    (RED, AQUA): WHITE,
+    (AQUA, RED): WHITE,
+    (GREEN, PINK): WHITE,
+    (PINK, GREEN): WHITE,
+    (BLUE, YELLOW): WHITE,
+    (YELLOW, BLUE): WHITE
+}
+
+# estrutra de LEVELX
 # [0] -> board inicial
 # [1] -> energia do nivel
 # [2] -> path para a imagem do objetivo
 # [3] -> titulo do nivel
 # [4] -> board objetivo
 # [5] -> altura da board
-
 LEVEL1:list = [
     [
         [0, 1, 0],

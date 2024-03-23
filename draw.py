@@ -1,23 +1,10 @@
 import pygame
 import algorithms
 import drop_of_light as dol
-from game_info import RULES_TEXT, LEVEL1, LEVEL2
+import game_info
 from typing import Union
 from copy import deepcopy
 from time import sleep
-
-BLACK: tuple[int, int, int] = (0, 0, 0)               
-DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
-LIGHTGREY: tuple[int, int, int] = (211, 211, 211)     # para exemplos das regras
-GREY: tuple[int, int, int] = (128, 128, 128)          #0
-RED: tuple[int, int, int] = (255, 0, 0)               #1
-GREEN: tuple[int, int, int] = (0, 255, 0)             #2
-BLUE: tuple[int, int, int] = (0, 0, 255)              #3
-WHITE: tuple[int, int, int] = (255, 255, 255)         #4    
-YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
-PINK: tuple[int, int, int] = (255, 0, 255)            #6
-AQUA: tuple[int, int, int] = (0, 255, 255)            #7
-ORANGE: tuple[int, int, int] = (255, 165, 0)         # highlight
 
 WIDTH: int = 800
 HEIGHT: int = 600
@@ -32,7 +19,7 @@ class Draw:
 
         pygame.display.set_caption("Drop of Light")
 
-    def draw_text(self, text: str, width: int, height: int, font:str = "normal", color:tuple[int, int, int] = WHITE) -> pygame.Rect:
+    def draw_text(self, text: str, width: int, height: int, font:str = "normal", color:tuple[int, int, int] = game_info.WHITE) -> pygame.Rect:
         if font == "normal":
             f = self.normal_font
         else:
@@ -57,7 +44,7 @@ class MainMenu(Draw):
         self.update_screen()
 
     def draw_main_menu(self) -> None:
-        self.screen.fill(BLACK)
+        self.screen.fill(game_info.BLACK)
 
         self.draw_text("Drop of Light", WIDTH//2, TITLE_HEIGHT, "titulo")
 
@@ -93,12 +80,12 @@ class MainMenu(Draw):
     def draw_rules(self) -> None:
         i = 0
 
-        while i < len(RULES_TEXT):
+        while i < len(game_info.RULES_TEXT):
             previous_rule = next_rule = None  
-            self.screen.fill(BLACK)
+            self.screen.fill(game_info.BLACK)
             self.draw_text("Rules", WIDTH//2, TITLE_HEIGHT, "titulo")
 
-            for (rule, index) in zip(RULES_TEXT[i], range(0, len(RULES_TEXT[i]))):
+            for (rule, index) in zip(game_info.RULES_TEXT[i], range(0, len(game_info.RULES_TEXT[i]))):
                 self.draw_text(rule, WIDTH//2, HEIGHT//2 - 120 + (50 * index))
 
             if i == 2:
@@ -107,7 +94,7 @@ class MainMenu(Draw):
             if i != 0:
                 previous_rule = self.draw_text("Previous rule", WIDTH//5, HEIGHT - 50)
             main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT - 50)
-            if i != len(RULES_TEXT)-1:
+            if i != len(game_info.RULES_TEXT)-1:
                 next_rule = self.draw_text("Next rule", WIDTH - (WIDTH//5) , HEIGHT - 50)
 
             self.update_screen()
@@ -133,26 +120,26 @@ class MainMenu(Draw):
             i = max(0, i+1)
 
     def draw_rule_example(self) -> None:
-        self.draw_rule_line(RED, GREEN, YELLOW, 0)
-        self.draw_rule_line(RED, BLUE, PINK, 50)
-        self.draw_rule_line(GREEN, BLUE, AQUA, 100)
-        self.draw_rule_line(RED, GREEN, WHITE, 150, 47.5)
+        self.draw_rule_line(game_info.RED, game_info.GREEN, game_info.YELLOW, 0)
+        self.draw_rule_line(game_info.RED, game_info.BLUE, game_info.PINK, 50)
+        self.draw_rule_line(game_info.GREEN, game_info.BLUE, game_info.AQUA, 100)
+        self.draw_rule_line(game_info.RED, game_info.GREEN, game_info.WHITE, 150, 47.5)
 
     def draw_rule_line(self, color1, color2, color3, paddingY, paddingX = 0) -> None:
         pygame.draw.circle(self.screen, color1, (WIDTH // 2 - 95 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 1º circulo
-        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 60 - paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 - paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
-        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
+        pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 60 - paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 - paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
+        pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
         pygame.draw.circle(self.screen, color2, (WIDTH // 2 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 2º circulo
         if paddingX != 0:
-            pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 60 + paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 + paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
-            pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
-            pygame.draw.circle(self.screen, BLUE, (WIDTH // 2 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 3º circulo
-        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 35 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 35 + paddingY), 5) # resultado linha de cima
-        pygame.draw.line(self.screen, LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 45 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 45 + paddingY), 5) # resultado linha de baixo
+            pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 60 + paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 + paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
+            pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 + paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
+            pygame.draw.circle(self.screen, game_info.BLUE, (WIDTH // 2 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 3º circulo
+        pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 35 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 35 + paddingY), 5) # resultado linha de cima
+        pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 + 35 + paddingX, HEIGHT // 2 + 45 + paddingY), (WIDTH // 2 + 60 + paddingX, HEIGHT // 2 + 45 + paddingY), 5) # resultado linha de baixo
         pygame.draw.circle(self.screen, color3, (WIDTH // 2 + 95 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # ultimo circulo 
 
     def draw_level_menu(self) -> Union[list, None]:
-        self.screen.fill(BLACK)
+        self.screen.fill(game_info.BLACK)
 
         self.draw_text("Choose a level", WIDTH//2, TITLE_HEIGHT, "titulo")
         level1 = self.draw_text("Level 1", WIDTH//2, HEIGHT//2 - 60)
@@ -173,10 +160,10 @@ class MainMenu(Draw):
                         return []
 
                     if level1.collidepoint(event.pos):
-                        return LEVEL1
+                        return game_info.LEVEL1
 
                     if level2.collidepoint(event.pos):
-                        return LEVEL2
+                        return game_info.LEVEL2
 
                     if level3.collidepoint(event.pos):
                         pass
@@ -189,7 +176,7 @@ class FinalMenu(Draw):
         self.play_again, self.main_menu = self.draw_menu(title)
 
     def draw_menu(self, title:str) -> tuple[pygame.Rect, pygame.Rect]:
-        self.screen.fill(BLACK)
+        self.screen.fill(game_info.BLACK)
         self.draw_text(title, WIDTH//2, TITLE_HEIGHT, "titulo")
         play_again = self.draw_text("Play Again", WIDTH//2, HEIGHT//2 - 60)
         main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT//2 - 10)
@@ -257,7 +244,7 @@ class Game(Draw):
 
     def draw_energy(self) -> None:
         self.draw_text("Energy", 100, TITLE_HEIGHT + 15)
-        self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 45, "normal", YELLOW)
+        self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 45, "normal", game_info.YELLOW)
 
     def draw_reset(self) -> pygame.Rect:
         return self.draw_text("Reset level", 100, HEIGHT//2 + 200)
@@ -302,29 +289,29 @@ class Game(Draw):
         return l
 
     def draw_lines(self) -> None:
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510 if self.max_height > 3 else 330), 5) #[0][0] -> [4][0]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][0] -> [4][2] 
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 260, 330), 5) #[0][0] -> [2][4]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 - 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][2] -> [4][0]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 + 130, 510 if self.max_height > 3 else 330), 5) #[0][2] -> [4][2]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 150), 5) #[2][0] -> [0][2]
-        pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 260, 330), 5) #[2][0] -> [2][4]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510 if self.max_height > 3 else 330), 5) #[0][0] -> [4][0]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][0] -> [4][2] 
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 260, 330), 5) #[0][0] -> [2][4]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 - 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][2] -> [4][0]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 + 130, 150), (WIDTH//2 + 130, 510 if self.max_height > 3 else 330), 5) #[0][2] -> [4][2]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 150), 5) #[2][0] -> [0][2]
+        pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 260, 330), 5) #[2][0] -> [2][4]
         if self.max_height > 3:
-            pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
-            pygame.draw.line(self.screen, DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
+            pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
+            pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
         
     def get_circle_color(self, color:tuple[int, int, int]) -> tuple[int, int, int]:
-        colors = [GREY, RED, GREEN, BLUE, WHITE, YELLOW, PINK, AQUA]
+        colors = [game_info.GREY, game_info.RED, game_info.GREEN, game_info.BLUE, game_info.WHITE, game_info.YELLOW, game_info.PINK, game_info.AQUA]
         return colors[color]
     
     def reset_level(self, game:dol) -> None:
         self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
-        self.screen.fill(BLACK)
+        self.screen.fill(game_info.BLACK)
         self.rects, self.reset, self.undo_button = self.draw_game()
 
     def undo(self, game:dol) -> None:
-        self.screen.fill(BLACK)
+        self.screen.fill(game_info.BLACK)
         self.board = deepcopy(self.prev_board)
         self.prev_board = None
         self.energy += 1
@@ -335,16 +322,16 @@ class Game(Draw):
     def highlight_selected(self, highlight:bool, center:tuple[int, int], coords_circle:tuple[int, int]) -> tuple[int, int]:
         i,j = coords_circle
 
-        if highlight is False and self.board[i][j] != GREY:
+        if highlight is False and self.board[i][j] != game_info.GREY:
             highlight = True
             center = (i,j)
-            pygame.draw.circle(self.screen, ORANGE, self.rects[i][j].center, 23)
+            pygame.draw.circle(self.screen, game_info.ORANGE, self.rects[i][j].center, 23)
             pygame.draw.circle(self.screen, self.board[i][j], self.rects[i][j].center, 20)
             self.update_screen()
         elif highlight is True and (i,j) == center:
             highlight = False
             center = None
-            self.screen.fill(BLACK)
+            self.screen.fill(game_info.BLACK)
             self.rects, self.reset, self.undo_button = self.draw_game()
 
         return highlight, center
@@ -407,7 +394,7 @@ class Game(Draw):
                                 highlight = False
                                 self.prev_board = deepcopy(self.board)
                                 self.board, self.energy = ret
-                                self.screen.fill(BLACK)
+                                self.screen.fill(game_info.BLACK)
 
                                 # win
                                 if self.board == []:

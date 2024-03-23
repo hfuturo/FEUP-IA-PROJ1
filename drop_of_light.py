@@ -1,52 +1,7 @@
 from typing import Union
 from copy import deepcopy
+import game_info
         
-GREY: tuple[int, int, int] = (128, 128, 128)          #0
-RED: tuple[int, int, int] = (255, 0, 0)               #1
-GREEN: tuple[int, int, int] = (0, 255, 0)             #2
-BLUE: tuple[int, int, int] = (0, 0, 255)              #3
-WHITE: tuple[int, int, int] = (255, 255, 255)         #4    
-YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
-PINK: tuple[int, int, int] = (255, 0, 255)            #6
-AQUA: tuple[int, int, int] = (0, 255, 255)            #7
-
-POSSIBLE_MOVES: dict[tuple[int, int], list[tuple[int, int]]] = {
-    (0,0): [(0,1), (1,0), (1,1)],
-    (0,1): [(0,0), (0,2), (1,1), (1,2)],
-    (0,2): [(0,1), (1,2), (1,3)],
-    (1,0): [(0,0), (1,1), (2,0), (2,1)],
-    (1,1): [(0,0), (0,1), (1,0), (2,2)],
-    (1,2): [(0,1), (0,2), (1,3), (2,2)],
-    (1,3): [(0,2), (1,2), (2,3), (2,4)],
-    (2,0): [(1,0), (2,1), (3,0)],
-    (2,1): [(1,0), (2,0), (2,2), (3,0)],
-    (2,2): [(1,1), (1,2), (2,1), (2,3), (3,1), (3,2)],
-    (2,3): [(1,3), (2,2), (2,4), (3,3)],
-    (2,4): [(1,3), (2,3), (3,3)],
-    (3,0): [(2,0), (2,1), (3,1), (4,0)],
-    (3,1): [(2,2), (3,0), (4,0), (4,1)],
-    (3,2): [(2,2), (3,3), (4,1), (4,2)],
-    (3,3): [(2,3), (2,4), (3,2), (4,2)],
-    (4,0): [(3,0), (3,1), (4,1)],
-    (4,1): [(3,1), (3,2), (4,0), (4,2)],
-    (4,2): [(3,2), (3,3), (4,1)]
-}
-
-COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[int, int, int]] = {
-    (RED, GREEN): YELLOW,
-    (GREEN, RED): YELLOW,
-    (RED, BLUE): PINK,
-    (BLUE, RED): PINK,
-    (GREEN, BLUE): AQUA,
-    (BLUE, GREEN): AQUA,
-    (RED, AQUA): WHITE,
-    (AQUA, RED): WHITE,
-    (GREEN, PINK): WHITE,
-    (PINK, GREEN): WHITE,
-    (BLUE, YELLOW): WHITE,
-    (YELLOW, BLUE): WHITE
-}
-
 class DropOfLight:
     def __init__(self, board: list, goal: list, energy: int, max_height: int) -> None:
         self.board = deepcopy(board)
@@ -65,7 +20,7 @@ class DropOfLight:
 
     def handle_piece_selected(self, coords: tuple[int, int]) -> Union[tuple[list, int], None]:
         i,j = coords
-        if self.first_piece is None and self.board[i][j] == GREY:
+        if self.first_piece is None and self.board[i][j] == game_info.GREY:
             return None
 
         if self.first_piece is None:
@@ -102,10 +57,10 @@ class DropOfLight:
         first_piece_color = self.board[fi][fj]
         second_piece_color = self.board[si][sj]
 
-        if second_piece_color != GREY and (first_piece_color, second_piece_color) not in COMPUND_COLORS:
+        if second_piece_color != game_info.GREY and (first_piece_color, second_piece_color) not in game_info.COMPUND_COLORS:
             return False
 
-        return self.second_piece in POSSIBLE_MOVES.get(self.first_piece) and self.board[fi][fj] != self.board[si][sj]
+        return self.second_piece in game_info.POSSIBLE_MOVES.get(self.first_piece) and self.board[fi][fj] != self.board[si][sj]
     
     def move(self) -> None:
         fi, fj = self.first_piece
@@ -113,12 +68,12 @@ class DropOfLight:
         first_piece_color = self.board[fi][fj]
         second_piece_color = self.board[si][sj]
 
-        if second_piece_color == GREY:
+        if second_piece_color == game_info.GREY:
             self.board[si][sj] = self.board[fi][fj]
         else:
-            self.board[si][sj] = COMPUND_COLORS.get((first_piece_color, second_piece_color))
+            self.board[si][sj] = game_info.COMPUND_COLORS.get((first_piece_color, second_piece_color))
             
-        self.board[fi][fj] = GREY
+        self.board[fi][fj] = game_info.GREY
         self.first_piece = None
         self.second_piece = None
         self.energy -= 1

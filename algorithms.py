@@ -1,53 +1,6 @@
 from collections import deque
 from copy import deepcopy
-from time import sleep
-
-GREY: tuple[int, int, int] = (128, 128, 128)          #0
-RED: tuple[int, int, int] = (255, 0, 0)               #1
-GREEN: tuple[int, int, int] = (0, 255, 0)             #2
-BLUE: tuple[int, int, int] = (0, 0, 255)              #3
-WHITE: tuple[int, int, int] = (255, 255, 255)         #4    
-YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
-PINK: tuple[int, int, int] = (255, 0, 255)            #6
-AQUA: tuple[int, int, int] = (0, 255, 255)            #7
-
-
-POSSIBLE_MOVES: dict[tuple[int, int], list[tuple[int, int]]] = {
-    (0,0): [(0,1), (1,0), (1,1)],
-    (0,1): [(0,0), (0,2), (1,1), (1,2)],
-    (0,2): [(0,1), (1,2), (1,3)],
-    (1,0): [(0,0), (1,1), (2,0), (2,1)],
-    (1,1): [(0,0), (0,1), (1,0), (2,2)],
-    (1,2): [(0,1), (0,2), (1,3), (2,2)],
-    (1,3): [(0,2), (1,2), (2,3), (2,4)],
-    (2,0): [(1,0), (2,1), (3,0)],
-    (2,1): [(1,0), (2,0), (2,2), (3,0)],
-    (2,2): [(1,1), (1,2), (2,1), (2,3), (3,1), (3,2)],
-    (2,3): [(1,3), (2,2), (2,4), (3,3)],
-    (2,4): [(1,3), (2,3), (3,3)],
-    (3,0): [(2,0), (2,1), (3,1), (4,0)],
-    (3,1): [(2,2), (3,0), (4,0), (4,1)],
-    (3,2): [(2,2), (3,3), (4,1), (4,2)],
-    (3,3): [(2,3), (2,4), (3,2), (4,2)],
-    (4,0): [(3,0), (3,1), (4,1)],
-    (4,1): [(3,1), (3,2), (4,0), (4,2)],
-    (4,2): [(3,2), (3,3), (4,1)]
-}
-
-COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[int, int, int]] = {
-    (RED, GREEN): YELLOW,
-    (GREEN, RED): YELLOW,
-    (RED, BLUE): PINK,
-    (BLUE, RED): PINK,
-    (GREEN, BLUE): AQUA,
-    (BLUE, GREEN): AQUA,
-    (RED, AQUA): WHITE,
-    (AQUA, RED): WHITE,
-    (GREEN, PINK): WHITE,
-    (PINK, GREEN): WHITE,
-    (BLUE, YELLOW): WHITE,
-    (YELLOW, BLUE): WHITE
-}
+import game_info
 
 class TreeNode:
     def __init__(self, state, parent=None):
@@ -75,12 +28,12 @@ class Algorithm:
 
         new_board = board
 
-        if second_circle_color == GREY:
+        if second_circle_color == game_info.GREY:
             new_board[si][sj] = first_circle_color
         else:
-            new_board[si][sj] = COMPUND_COLORS[(first_circle_color, second_circle_color)]
+            new_board[si][sj] = game_info.COMPUND_COLORS[(first_circle_color, second_circle_color)]
 
-        new_board[fi][fj] = GREY
+        new_board[fi][fj] = game_info.GREY
 
         return new_board
     
@@ -94,7 +47,7 @@ class Algorithm:
         first_circle_color = board[fi][fj]
         second_circle_color = board[si][sj]
 
-        if second_circle_color != GREY and (first_circle_color, second_circle_color) not in COMPUND_COLORS:
+        if second_circle_color != game_info.GREY and (first_circle_color, second_circle_color) not in game_info.COMPUND_COLORS:
             return False
         
         return first_circle_color != second_circle_color
@@ -105,11 +58,11 @@ class Algorithm:
 
         for i in range(0, len(board)):
             for j in range(0, len(board[i])):
-                if board[i][j] != GREY:
+                if board[i][j] != game_info.GREY:
                     circle_coords.append((i,j))
 
         for circle in circle_coords:
-            for possible_move in POSSIBLE_MOVES[circle]:
+            for possible_move in game_info.POSSIBLE_MOVES[circle]:
                 if self.valid_move(circle, possible_move, board) == False:
                     continue
 
