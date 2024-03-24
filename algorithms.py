@@ -160,26 +160,6 @@ class Algorithm:
                 visited_states.append(state)
         
         return None
-    
-    def DLS(self) -> Union[TreeNode, None]:
-        root = TreeNode(self.state)
-        stack = deque([(root, 0)])
-        visited_states = [self.state]
-
-        while stack:
-            node, depth = stack.pop()
-
-            if self.check_win(node.state):
-                return node
-
-            if depth <= self.energy: 
-                for state in self.next_states(node.state):
-                    if state not in visited_states:
-                        new_state = TreeNode(state, node)
-                        node.add_child(new_state)
-                        stack.append((new_state, depth+1))
-
-        return None
 
     def get_colors_by_compound(self, compound_color: tuple[int, int, int], board_info: dict) -> list:
         for (k,v) in game_info.COMPUND_COLORS.items():
@@ -232,7 +212,7 @@ class Algorithm:
 
         return min_distance
 
-    def heuristic(self, board: list) -> int:
+    def AStar_heuristic(self, board: list) -> int:
         total = 0
         board_info = self.get_board_info(board)
         goal_info = deepcopy(self.goal_board_info)
@@ -294,9 +274,42 @@ class Algorithm:
 
         return total
 
+    def greedy_heuristic(self, board):
+        total = 0
+        compound_c1 = 0
+        compound_c2 = 0
+
+        # peças fora do sitio
+        for i in range(0, len(board)):
+            for j in range(0, len(board[i])):
+                c1 = board[i][j]
+                c2 = self.goal[i][j]
+
+                if c1 != game_info.RED and c1 != game_info.GREEN and c1 != game_info.BLUE:
+                    compound_c1 += 1
+
+                if c2 != game_info.RED and c2 != game_info.GREEN and c2 != game_info.BLUE:
+                    compound_c2 += 1
+
+                if board[i][j] != self.goal[i][j]:
+                    total += 1
+
+        total += abs(compound_c2 - compound_c1)
+
+        return total
+    
+    def get_depth(self, node: TreeNode) -> int:
+        total = 0
+
+        while node:
+            total += 1
+            node = node.parent
+
+        return total - 1
+
     def greedy(self) -> Union[TreeNode, None]:
         root = TreeNode(self.state)
-        nodes_to_visit = [(root, self.heuristic(self.state))]
+        nodes_to_visit = [(root, self.greedy_heuristic(self.state))]
         visited_states = [self.state]
 
         while nodes_to_visit:
@@ -310,6 +323,26 @@ class Algorithm:
                     new_state = TreeNode(state, node)
                     node.add_child(new_state)
                     visited_states.append(new_state.state)
-                    nodes_to_visit.append((new_state, self.heuristic(new_state.state)))
+                    nodes_to_visit.append((new_state, self.greedy_heuristic(new_state.state)))
+
+            nodes_to_visit = sorted(nodes_to_visit, key= lambda x : x[1], reverse=True)
+
+    def AStar(self) -> Union[TreeNode, None]:
+        root = TreeNode(self.state)
+        nodes_to_visit = [(root, self.AStar_heuristic(self.state) + self.get_depth(root))]
+        visisted_states = [self.state]
+
+        while nodes_to_visit:
+
+            node, _ = nodes_to_visit.pop()
+            if self.check_win(node.state):
+                return node
+        
+            for state in self.next_states(node.state):
+                if state not in visisted_states:
+                    new_state = TreeNode(state, node)
+                    node.add_child(new_state)
+                    visisted_states.append(new_state.state)
+                    nodes_to_visit.append((new_state, self.AStar_heuristic(new_state.state) + self.get_depth(new_state)))
 
             nodes_to_visit = sorted(nodes_to_visit, key= lambda x : x[1], reverse=True)

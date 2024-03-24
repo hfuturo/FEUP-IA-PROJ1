@@ -161,14 +161,20 @@ class MainMenu(Draw):
 
                     if level1.collidepoint(event.pos):
                         ret = self.select_game_mode()
+                        if ret == -1:
+                            return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL1, ret]
 
                     if level2.collidepoint(event.pos):
                         ret = self.select_game_mode()
+                        if ret == -1: 
+                            return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL2, ret]
 
                     if level3.collidepoint(event.pos):
                         ret = self.select_game_mode()
+                        if ret == -1:
+                            return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL3, ret]
                     
     def select_game_mode(self):
@@ -181,6 +187,9 @@ class MainMenu(Draw):
         mode.append(self.draw_text("BFS", WIDTH//2, HEIGHT//2 - 10))
         mode.append(self.draw_text("DFS", WIDTH//2, HEIGHT//2 + 40))
         mode.append(self.draw_text("Greedy", WIDTH//2, HEIGHT//2 + 90))
+        mode.append(self.draw_text("A*", WIDTH//2, HEIGHT//2 + 140))
+
+        go_back = self.draw_text("Go back", WIDTH//2, HEIGHT - 50)
 
         self.update_screen()
 
@@ -191,6 +200,9 @@ class MainMenu(Draw):
                     return None
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if go_back.collidepoint(event.pos):
+                        return -1
+
                     for i in range(0, len(mode)):
                         if mode[i].collidepoint(event.pos):
                             return i
@@ -231,7 +243,7 @@ class Game(Draw):
         self.board, self.energy, image_path, self.title, self.goal, self.max_height = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
         self.prev_board = None
-        self.rects, self.reset, self.undo_button = self.draw_game()
+        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
 
     def parse_level(self, level:list) -> tuple[list, int, str, str, list]:
         board = []
@@ -248,6 +260,7 @@ class Game(Draw):
             l = []
             self.draw_energy()
             reset = self.draw_reset()
+            main_menu = self.draw_main_menu_button()
             undo = None
             if self.prev_board is not None:
                 undo = self.draw_undo()
@@ -261,8 +274,11 @@ class Game(Draw):
                 l.append(self.draw_fifth_row())
             self.update_screen()
             
-            return l, reset, undo
+            return l, reset, undo, main_menu
     
+    def draw_main_menu_button(self):
+        return self.draw_text("Main Menu", 100, HEIGHT//2 + 230)
+
     def draw_undo(self):
         return self.draw_text("Undo", 100, HEIGHT//2 + 170)
     
@@ -336,7 +352,7 @@ class Game(Draw):
         self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(game_info.BLACK)
-        self.rects, self.reset, self.undo_button = self.draw_game()
+        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
 
     def undo(self, game:dol) -> None:
         self.screen.fill(game_info.BLACK)
@@ -344,7 +360,7 @@ class Game(Draw):
         self.prev_board = None
         self.energy += 1
         game.reset(deepcopy(self.board), self.energy)
-        self.rects, self.reset, self.undo_button = self.draw_game();
+        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game();
         self.update_screen()
 
     def highlight_selected(self, highlight:bool, center:tuple[int, int], coords_circle:tuple[int, int]) -> tuple[int, int]:
@@ -360,7 +376,7 @@ class Game(Draw):
             highlight = False
             center = None
             self.screen.fill(game_info.BLACK)
-            self.rects, self.reset, self.undo_button = self.draw_game()
+            self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
 
         return highlight, center
     
@@ -394,6 +410,9 @@ class Game(Draw):
                     return None
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.main_menu.collidepoint(event.pos):
+                        return -1
+
                     if self.reset.collidepoint(event.pos):
                         self.reset_level(game)
                         finished_algo = False
@@ -442,7 +461,7 @@ class Game(Draw):
                                         self.prev_board = None
                                         self.reset_level(game)
 
-                                    self.rects, self.reset, self.undo_button = self.draw_game()
+                                    self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
                 
                 # algorithms
                 else:
@@ -450,7 +469,6 @@ class Game(Draw):
                         continue
 
                     algorithm = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
-
                     begin = time()
                     if self.game_mode == 1:
                         moves = algorithm.BFS()
@@ -458,8 +476,11 @@ class Game(Draw):
                         moves = algorithm.DFS()
                     elif self.game_mode == 3:
                         moves = algorithm.greedy()
+                    elif self.game_mode == 4:
+                        moves = algorithm.AStar()
                     end = time()
 
                     elapsed_time = end - begin
                     self.show_algorithm_moves(moves, round(elapsed_time, 2 if elapsed_time > 0.01 else 3))
+
                     finished_algo = True
