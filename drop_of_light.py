@@ -3,7 +3,15 @@ from copy import deepcopy
 import game_info
         
 class DropOfLight:
+    """
+        Classe que possui a lógica do jogo.
+    """
+
     def __init__(self, board: list, goal: list, energy: int, max_height: int) -> None:
+        """
+            Cria um elemento da classe DropOfLight
+        """
+        
         self.board = deepcopy(board)
         self.goal = goal
         self.energy = energy
@@ -13,12 +21,20 @@ class DropOfLight:
         self.second_piece = None
 
     def reset(self, board:list, energy:int) -> None:
+        """
+            Dá reset ao estado de jogo.
+        """
+        
         self.board = deepcopy(board)
         self.energy = energy
         self.first_piece = None
         self.second_piece = None
 
     def handle_piece_selected(self, coords: tuple[int, int]) -> Union[tuple[list, int], None]:
+        """
+            Gere a lógica quando o user clica numa peça.
+        """
+        
         i,j = coords
         if self.first_piece is None and self.board[i][j] == game_info.GREY:
             return None
@@ -52,6 +68,10 @@ class DropOfLight:
         
 
     def check_move(self) -> bool:
+        """
+            Verifica se uma jogada é possivel.
+        """
+
         fi, fj = self.first_piece
         si, sj = self.second_piece
         first_piece_color = self.board[fi][fj]
@@ -63,6 +83,10 @@ class DropOfLight:
         return self.second_piece in game_info.POSSIBLE_MOVES.get(self.first_piece) and self.board[fi][fj] != self.board[si][sj]
     
     def move(self) -> None:
+        """
+            Realiza uma jogada.
+        """
+
         fi, fj = self.first_piece
         si, sj = self.second_piece
         first_piece_color = self.board[fi][fj]
@@ -79,6 +103,10 @@ class DropOfLight:
         self.energy -= 1
 
     def check_win(self) -> bool:
+        """
+            Verifica se a condição de vitória foi alcançada
+        """
+
         for i in range(0, len(self.board)):
             for j in range(0, len(self.board[i])):
                 if self.board[i][j] != self.goal[i][j]:

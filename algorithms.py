@@ -6,18 +6,38 @@ from typing import Union
 import game_info
 
 class TreeNode:
+    """
+        Classe que contem informacao um estado utilizada pelos algoritmos.
+    """
+
     def __init__(self, state: list, parent:TreeNode = None) -> None:
+        """
+            Cria um elemento da classe TreeNode
+        """
+
         self.state = state
         self.parent = parent
         self.children = []
         self.visited = False
 
     def add_child(self, child:TreeNode ) -> None:
+        """
+            Adiciona um filho
+        """
+
         self.children.append(child)
         child.parent = self
 
 class Algorithm:
+    """
+        Classe onde se encontram os algoritmos
+    """
+
     def __init__(self, state: list, goal: list, energy: int, max_height: int) -> None:
+        """
+            Cria um elemento da class Algorithm
+        """
+
         self.state = state
         self.goal = goal
         self.energy = energy
@@ -28,6 +48,13 @@ class Algorithm:
         self.goal_board_info = self.get_board_info(self.goal)
 
     def get_board_info(self, board: list) -> dict:
+        """
+            Obtém toda a informação relevante do tabuleiro.
+
+            Retorna um dicionário onde as chaves são as cores e os valores uma
+            lista com as posições das peças no tabuleiro.
+        """
+
         info = {}
 
         for i in range(0, len(board)):
@@ -46,6 +73,10 @@ class Algorithm:
         return info
 
     def check_primary_colors(self) -> bool:
+        """
+            Verifica se o tabuleiro/estado do objetivo possui alguma cor primária
+        """
+
         for row in self.goal:
             for color in row:
                 if color == game_info.RED or color == game_info.GREEN or color == game_info.BLUE:
@@ -53,6 +84,10 @@ class Algorithm:
         return False
 
     def check_compound_colors(self) -> bool:
+        """
+            Verifica se existe alguma cor composta no tabuleiro/estado atual
+        """
+        
         for i in range(0, len(self.state)):
             for j in range(0, len(self.state[i])):
                 for (_,v) in game_info.COMPUND_COLORS.items():
@@ -61,6 +96,10 @@ class Algorithm:
         return False
 
     def move(self, coords: tuple[int, int], future_coords: tuple[int, int], board: list) -> list:
+        """
+            Realiza uma jogada no tabuleiro movimentando as peças
+        """
+        
         fi,fj = coords
         si, sj = future_coords
         first_circle_color = board[fi][fj]
@@ -78,6 +117,10 @@ class Algorithm:
         return new_board
     
     def valid_move(self, coords: tuple[int, int], future_coords: tuple[int, int], board: list) -> bool:
+        """
+            Verifica se a jogada pretendida é uma jogada válida
+        """
+        
         fi,fj = coords
         si, sj = future_coords
 
@@ -93,6 +136,10 @@ class Algorithm:
         return first_circle_color != second_circle_color
         
     def next_states(self, board: list) -> list:
+        """
+            Obtém todos os estados/tabuleiros possíveis a partir do tabuleiro fornecido.
+        """
+        
         circle_coords = []
         states = []
 
@@ -112,6 +159,10 @@ class Algorithm:
         return states
     
     def check_win(self, board: list) -> bool:
+        """
+            Verifica se a condição de vitória foi alcançada
+        """
+        
         for i in range(0, len(self.goal)):
             for j in range(0, len(self.goal[i])):
                 if self.goal[i][j] != board[i][j]:
@@ -119,6 +170,10 @@ class Algorithm:
         return True
 
     def BFS(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo Breadth-First Search (BFS)
+        """
+
         root = TreeNode(self.state)
         queue = deque([root])
         visited_states = [self.state]
@@ -140,6 +195,10 @@ class Algorithm:
         return None
     
     def DFS(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo Depth-First Search
+        """
+
         root = TreeNode(self.state)
         stack = deque([root])
         visited_states = [self.state]
@@ -162,11 +221,18 @@ class Algorithm:
         return None
 
     def get_colors_by_compound(self, compound_color: tuple[int, int, int], board_info: dict) -> list:
+        """
+            Retorna uma lista com as cores necessárias que se encontram no tabuleiro para criar uma cor composta.
+        """
+
+        # ambas as cores encontram-se no tabuleiro
         for (k,v) in game_info.COMPUND_COLORS.items():
             if compound_color == v:
                 if k[0] in board_info and len(board_info[k[0]]) > 0 and k[1] in board_info and len(board_info[k[1]]) > 0:
                     return [k[0], k[1]]
-                
+        
+        # Edge case: obter branco mas no tabuleiro temos apenas cores primarias.
+        # Necessário criar uma cor compound e depois junta-la a uma cor primaria.
         for (k,v) in game_info.COMPUND_COLORS.items():
             if compound_color == v:
                 if k[0] in board_info and len(board_info[k[0]]) > 0:
@@ -181,12 +247,20 @@ class Algorithm:
         return []
 
     def manhattan(self, piece1: tuple[int, int], piece2: tuple[int, int]) -> int:
+        """
+            Obtém a distânica de Manhattan entre dois pontos.
+        """
+        
         x1, y1 = piece1
         x2, y2 = piece2
 
         return abs(x1-x2) + abs(y1-y2)
     
     def find_best_move(self, c1: tuple[int, int, int], c2: tuple[int, int, int], board_info: dict, goal_info: dict, remove_color_from_goal:bool = True) -> int:
+        """
+            Encontra a cor que vai percorrer uma menor distância para chegar a outra cor.
+        """
+        
         min_distance = 10000000000000
         p1_coord = []
         p2_coord = []
@@ -213,6 +287,19 @@ class Algorithm:
         return min_distance
 
     def AStar_heuristic(self, board: list) -> int:
+        """
+            Heurística utilizada no algoritmo A*.
+
+            Esta heuristica vai calcular a soma das distâncias das cores atuais à posição da cor no tabuleiro final.
+            Esta heuristica não continua a explorar uma node que tenha cores compostas se o estado final não tem cores compostas
+            e também não explora uma node que não tem cores primárias se o estado final tiver cores primárias.
+
+            Para evitar criar cores compostas desnecessárias, primeiro calculmos a distância de nodes da mesma cor que se encontram
+            na node atual e na node final. De seguida, calculamos a distância para as cores que necessitam de serem juntadas para formar
+            uma cor compound (exceto branco). Por último, calculamos a distância para as cores que necessitam de serem juntadas para formar
+            branco.
+        """
+
         total = 0
         board_info = self.get_board_info(board)
         goal_info = deepcopy(self.goal_board_info)
@@ -239,9 +326,6 @@ class Algorithm:
 
         # calcula primeiro a distancia das cores que existem nas duas boards.
         # Se uma cor nao existir numa board, significa que é uma cor compund
-        # e que é necessário juntar duas cores. Ao calcular primeria a distacia
-        # das cores que ja existem nas duas boards, evita-se utilizar cores que 
-        # não eram necessarias para a criação da cor compound
         for key in goal_info:
             if key in board_info:
                 while len(goal_info[key]):
@@ -274,7 +358,14 @@ class Algorithm:
 
         return total
 
-    def greedy_heuristic(self, board):
+    def greedy_heuristic(self, board: list) -> int:
+        """
+            Heuristica utilizada no algoritmo greedy.
+
+            Obtém o número de peças fora do sitio em relação ao tabuleiro final e a diferença entre cores compostas
+            entre o tabuleiro atual e o tabuleiro final.
+        """
+
         total = 0
         compound_c1 = 0
         compound_c2 = 0
@@ -299,6 +390,10 @@ class Algorithm:
         return total
     
     def get_depth(self, node: TreeNode) -> int:
+        """
+            Obtém a distância desta node à node do problema inicial.
+        """
+        
         total = 0
 
         while node:
@@ -308,6 +403,10 @@ class Algorithm:
         return total - 1
 
     def greedy(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo greedy.
+        """
+
         root = TreeNode(self.state)
         nodes_to_visit = [(root, self.greedy_heuristic(self.state))]
         visited_states = [self.state]
@@ -328,6 +427,10 @@ class Algorithm:
             nodes_to_visit = sorted(nodes_to_visit, key= lambda x : x[1], reverse=True)
 
     def AStar(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo A*
+        """
+
         root = TreeNode(self.state)
         nodes_to_visit = [(root, self.AStar_heuristic(self.state) + self.get_depth(root))]
         visisted_states = [self.state]

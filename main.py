@@ -1,6 +1,9 @@
 import pygame
 import draw
 
+"""
+    Para correr o programa necessário correr este ficheiro
+"""
 if __name__ == "__main__":
     pygame.init()
 

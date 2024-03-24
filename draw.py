@@ -11,7 +11,15 @@ HEIGHT: int = 600
 TITLE_HEIGHT: int = 100
 
 class Draw:
+    """
+        Classe que possui funções comuns a todas as funções que desenham.
+    """
+
     def __init__(self) -> None:
+        """
+            Cria um elemento da classe Draw
+        """
+
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
         self.title_font = pygame.font.SysFont("Arial", 45)
@@ -20,6 +28,10 @@ class Draw:
         pygame.display.set_caption("Drop of Light")
 
     def draw_text(self, text: str, width: int, height: int, font:str = "normal", color:tuple[int, int, int] = game_info.WHITE) -> pygame.Rect:
+        """
+            Desenha texto no ecrã
+        """
+
         if font == "normal":
             f = self.normal_font
         else:
@@ -32,11 +44,22 @@ class Draw:
         return text_rect
 
     def update_screen(self) -> None:
+        """
+            Dá update ao ecrã
+        """
         pygame.display.flip()
 
         
 class MainMenu(Draw):
+    """
+        Classe que possui funções e lógica do menu principal.
+    """
+
     def __init__(self) -> None:
+        """
+            Cria um elemento da classe MainMenu.
+        """
+        
         super().__init__()
 
         self.draw_main_menu()
@@ -44,6 +67,10 @@ class MainMenu(Draw):
         self.update_screen()
 
     def draw_main_menu(self) -> None:
+        """
+            Desenha o menu principal.
+        """
+        
         self.screen.fill(game_info.BLACK)
 
         self.draw_text("Drop of Light", WIDTH//2, TITLE_HEIGHT, "titulo")
@@ -53,6 +80,10 @@ class MainMenu(Draw):
         self.quit = self.draw_text("Quit", WIDTH//2, HEIGHT//2 + 40)
     
     def run(self) -> Union[list, None]:
+        """
+            Gere a lógica do menu principal.
+        """
+        
         while True:
             for event in pygame.event.get():
                 if self.leave(event):
@@ -75,9 +106,17 @@ class MainMenu(Draw):
                     
 
     def leave(self, event: pygame.event) -> bool:
+        """
+            Verifica se user quer sair da aplicação.
+        """
+
         return event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.quit.collidepoint(event.pos))
     
     def draw_rules(self) -> None:
+        """
+            Desenha as regras e dá "handle" à lógica.
+        """
+
         i = 0
 
         while i < len(game_info.RULES_TEXT):
@@ -120,12 +159,20 @@ class MainMenu(Draw):
             i = max(0, i+1)
 
     def draw_rule_example(self) -> None:
+        """
+            Desenha o exemplo das cores compostas que se encontra nas regras
+        """
+        
         self.draw_rule_line(game_info.RED, game_info.GREEN, game_info.YELLOW, 0)
         self.draw_rule_line(game_info.RED, game_info.BLUE, game_info.PINK, 50)
         self.draw_rule_line(game_info.GREEN, game_info.BLUE, game_info.AQUA, 100)
         self.draw_rule_line(game_info.RED, game_info.GREEN, game_info.WHITE, 150, 47.5)
 
-    def draw_rule_line(self, color1, color2, color3, paddingY, paddingX = 0) -> None:
+    def draw_rule_line(self, color1: tuple[int, int, int], color2: tuple[int, int, int], color3: tuple[int, int, int], paddingY: int, paddingX: int = 0) -> None:
+        """
+            Desenha uma linha do exemplo das cores compostas que se encontra nas regras
+        """
+        
         pygame.draw.circle(self.screen, color1, (WIDTH // 2 - 95 - paddingX, HEIGHT // 2 + 40 + paddingY), 20) # 1º circulo
         pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 60 - paddingX, HEIGHT // 2 + 40 + paddingY), (WIDTH // 2 - 35 - paddingX, HEIGHT // 2 + 40 + paddingY), 5) # -
         pygame.draw.line(self.screen, game_info.LIGHTGREY, (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 52.5 + paddingY), (WIDTH // 2 - 47.5 - paddingX, HEIGHT // 2 + 27.5 + paddingY), 5) # |
@@ -139,6 +186,10 @@ class MainMenu(Draw):
         pygame.draw.circle(self.screen, color3, (WIDTH // 2 + 95 + paddingX, HEIGHT // 2 + 40 + paddingY), 20) # ultimo circulo 
 
     def draw_level_menu(self) -> Union[list, None]:
+        """
+            Desenha o menu de seleção dos níveis e dá "handle" à lógica.
+        """
+        
         self.screen.fill(game_info.BLACK)
 
         self.draw_text("Choose a level", WIDTH//2, TITLE_HEIGHT, "titulo")
@@ -177,7 +228,11 @@ class MainMenu(Draw):
                             return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL3, ret]
                     
-    def select_game_mode(self):
+    def select_game_mode(self) -> Union[int, None]:
+        """
+            Desenha os game modes e dá "handle" à lógica.
+        """
+        
         self.screen.fill(game_info.BLACK)
 
         self.draw_text("Select game mode", WIDTH//2, TITLE_HEIGHT, "titulo")
@@ -209,12 +264,24 @@ class MainMenu(Draw):
 
 
 class FinalMenu(Draw):
+    """
+        Classe que possui funções e lógica do menu final.
+    """
+
     def __init__(self, title:str) -> None:
+        """
+            Cria um elemento da classe FinalMenu.
+        """
+        
         super().__init__()
 
         self.play_again, self.main_menu = self.draw_menu(title)
 
     def draw_menu(self, title:str) -> tuple[pygame.Rect, pygame.Rect]:
+        """
+            Desenha o menu final.
+        """
+        
         self.screen.fill(game_info.BLACK)
         self.draw_text(title, WIDTH//2, TITLE_HEIGHT, "titulo")
         play_again = self.draw_text("Play Again", WIDTH//2, HEIGHT//2 - 60)
@@ -224,6 +291,10 @@ class FinalMenu(Draw):
         return play_again, main_menu
 
     def run(self) -> Union[None, int]:
+        """
+            "handle" lógica do menu final.
+        """
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -236,7 +307,15 @@ class FinalMenu(Draw):
                         return 1
 
 class Game(Draw):
-    def __init__(self, board: list, game_mode: int ) -> None:
+    """
+        Classe responsável por desenhar e dar "handle" à lógica do jogo.
+    """
+    
+    def __init__(self, board: list, game_mode: int) -> None:
+        """
+            Cria um elemento da classe Game.
+        """
+        
         super().__init__()
         self.game_mode = game_mode
         self.level_info = board
@@ -246,6 +325,10 @@ class Game(Draw):
         self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
     def parse_level(self, level:list) -> tuple[list, int, str, str, list]:
+        """
+            Dá parse à variável que contém toda a informação sobre o nível.
+        """
+        
         board = []
         goal = []
         for row in level[0]:
@@ -256,48 +339,85 @@ class Game(Draw):
         return board, level[1], level[2], level[3], goal, level[5]
                 
     def draw_game(self) -> tuple[list, pygame.Rect]:
+            """
+                Desenha o jogo.
+            """
+            
             self.draw_text(self.title, WIDTH//2, 50, "titulo")
-            l = []
+
             self.draw_energy()
+
+            hint = None
+            if self.game_mode == 0:
+                hint = self.draw_hint_button()
+
             reset = self.draw_reset()
             main_menu = self.draw_main_menu_button()
-            hint = self.draw_hint_button()
+
             undo = None
             if self.prev_board is not None:
                 undo = self.draw_undo()
+
             self.draw_goal()
             self.draw_lines()   # desenha linhas primeiro para circulos tapar o excesso
+
+            l = []
             l.append(self.draw_first_row())
             l.append(self.draw_second_row())
             l.append(self.draw_third_row())
             if (self.max_height > 3):
                 l.append(self.draw_forth_row())
                 l.append(self.draw_fifth_row())
+
             self.update_screen()
             
             return l, reset, undo, main_menu, hint
     
-    def draw_hint_button(self):
+    def draw_hint_button(self) -> pygame.Rect :
+        """
+            Desenha o botão "Hint".
+        """
         return self.draw_text("Hint", WIDTH//2 + 295, HEIGHT//2 + 170)
 
-    def draw_main_menu_button(self):
+    def draw_main_menu_button(self) -> pygame.Rect :
+        """
+            Desenha o botão "Main Menu".
+        """
         return self.draw_text("Main Menu", 100, HEIGHT//2 + 230)
 
-    def draw_undo(self):
+    def draw_undo(self) -> pygame.Rect:
+        """
+            Desenha o botão "Undo".
+        """
         return self.draw_text("Undo", 100, HEIGHT//2 + 170)
     
     def draw_goal(self) -> None:
+        """
+            Desenha a borda final.
+        """
+
         self.draw_text("Goal:", WIDTH//2 + 295, TITLE_HEIGHT + 15)
         self.screen.blit(self.image, (WIDTH//2 + 200, 130))
 
     def draw_energy(self) -> None:
+        """
+            Desenha a energia.
+        """
+
         self.draw_text("Energy", 100, TITLE_HEIGHT + 15)
         self.draw_text(str(self.energy), 100, TITLE_HEIGHT + 45, "normal", game_info.YELLOW)
 
     def draw_reset(self) -> pygame.Rect:
+        """
+            Desenha o botão "reset".
+        """
         return self.draw_text("Reset level", 100, HEIGHT//2 + 200)
 
     def draw_first_row(self) -> list:
+        """
+            Desenha a primeira linha do jogo.
+        """
+
         l = []
         l.append(pygame.draw.circle(self.screen, self.board[0][0], (WIDTH//2 - 130, 150), 20))
         l.append(pygame.draw.circle(self.screen, self.board[0][1], (WIDTH//2, 210), 20))
@@ -305,6 +425,10 @@ class Game(Draw):
         return l
 
     def draw_second_row(self) -> list:
+        """
+            Desenha a segunda linha do jogo.
+        """
+        
         l = []
         l.append(pygame.draw.circle(self.screen, self.board[1][0], (WIDTH//2 - 130, 270), 20))
         l.append(pygame.draw.circle(self.screen, self.board[1][1], (WIDTH//2 - 65, 240), 20))
@@ -313,6 +437,10 @@ class Game(Draw):
         return l
 
     def draw_third_row(self) -> list:
+        """
+            Desenha a terceira linha do jogo.
+        """
+        
         l = []
         l.append(pygame.draw.circle(self.screen, self.board[2][0], (WIDTH//2 - 260, 330), 20))
         l.append(pygame.draw.circle(self.screen, self.board[2][1], (WIDTH//2 - 130, 330), 20))
@@ -322,6 +450,10 @@ class Game(Draw):
         return l
 
     def draw_forth_row(self) -> list:
+        """
+            Desenha a quarta linha do jogo.
+        """
+        
         l = []
         l.append(pygame.draw.circle(self.screen, self.board[3][0], (WIDTH//2 - 130, 390), 20))
         l.append(pygame.draw.circle(self.screen, self.board[3][1], (WIDTH//2 - 65, 420), 20))
@@ -330,6 +462,10 @@ class Game(Draw):
         return l
 
     def draw_fifth_row(self) -> list:
+        """
+            Desenha a quinta linha do jogo.
+        """
+        
         l = []
         l.append(pygame.draw.circle(self.screen, self.board[4][0], (WIDTH//2 - 130, 510), 20))
         l.append(pygame.draw.circle(self.screen, self.board[4][1], (WIDTH//2, 450), 20))
@@ -337,6 +473,10 @@ class Game(Draw):
         return l
 
     def draw_lines(self) -> None:
+        """
+            Desenha as linhas que conectam os circulos.
+        """
+
         pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 - 130, 510 if self.max_height > 3 else 330), 5) #[0][0] -> [4][0]
         pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 130, 510) if self.max_height > 3 else (WIDTH//2, 330), 5) #[0][0] -> [4][2] 
         pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 130, 150), (WIDTH//2 + 260, 330), 5) #[0][0] -> [2][4]
@@ -348,17 +488,29 @@ class Game(Draw):
             pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 - 260, 330), (WIDTH//2 + 130, 510), 5) #[2][0] -> [4][2]
             pygame.draw.line(self.screen, game_info.DARKGREY, (WIDTH//2 + 260, 330), (WIDTH//2 - 130, 510), 5) #[2][4] -> [4][0]
         
-    def get_circle_color(self, color:tuple[int, int, int]) -> tuple[int, int, int]:
+    def get_circle_color(self, color: int) -> tuple[int, int, int]:
+        """
+            Obtém a cor de um círculo a partir da informção "raw" do nível.
+        """
+        
         colors = [game_info.GREY, game_info.RED, game_info.GREEN, game_info.BLUE, game_info.WHITE, game_info.YELLOW, game_info.PINK, game_info.AQUA]
         return colors[color]
     
     def reset_level(self, game:dol) -> None:
+        """
+            Dá reset ao tabuleiro.
+        """
+        
         self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(game_info.BLACK)
         self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
     def undo(self, game:dol) -> None:
+        """
+            Volta uma jogada atrás.
+        """
+
         self.screen.fill(game_info.BLACK)
         self.board = deepcopy(self.prev_board)
         self.prev_board = None
@@ -368,6 +520,13 @@ class Game(Draw):
         self.update_screen()
 
     def highlight_selected(self, highlight:bool, center:tuple[int, int], coords_circle:tuple[int, int]) -> tuple[int, int]:
+        """
+            "handle" a lógica de quando se clica num circulo.
+
+            Se não tiver nenhum círculo selecionado dá "highlight" ao círculo. 
+            Se tiver um círculo selecionado tira o "highlight".
+        """
+        
         i,j = coords_circle
 
         if highlight is False and self.board[i][j] != game_info.GREY:
@@ -385,6 +544,10 @@ class Game(Draw):
         return highlight, center
     
     def show_algorithm_moves(self, node, time: int) -> None:
+        """
+            Mostra as jogadas do algoritmo.
+        """
+        
         moves = []
 
         while node:
@@ -401,7 +564,11 @@ class Game(Draw):
             self.update_screen()
             sleep(1)
 
-    def get_first_algorithm_move(self, node):
+    def get_first_algorithm_move(self, node) -> tuple[tuple[int, int], tuple[int, int]]:
+        """
+            Obtém a primeria jogada do algorítmo.
+        """
+        
         moves = []
 
         while node:
@@ -418,6 +585,10 @@ class Game(Draw):
         return pos[0], pos[1]
 
     def run(self) -> Union[None, int]:
+        """
+            "handle" a lógica do jogo.
+        """
+        
         game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy, self.max_height)
 
         highlight = False
