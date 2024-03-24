@@ -243,7 +243,7 @@ class Game(Draw):
         self.board, self.energy, image_path, self.title, self.goal, self.max_height = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
         self.prev_board = None
-        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
+        self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
     def parse_level(self, level:list) -> tuple[list, int, str, str, list]:
         board = []
@@ -261,6 +261,7 @@ class Game(Draw):
             self.draw_energy()
             reset = self.draw_reset()
             main_menu = self.draw_main_menu_button()
+            hint = self.draw_hint_button()
             undo = None
             if self.prev_board is not None:
                 undo = self.draw_undo()
@@ -274,8 +275,11 @@ class Game(Draw):
                 l.append(self.draw_fifth_row())
             self.update_screen()
             
-            return l, reset, undo, main_menu
+            return l, reset, undo, main_menu, hint
     
+    def draw_hint_button(self):
+        return self.draw_text("Hint", WIDTH//2 + 295, HEIGHT//2 + 170)
+
     def draw_main_menu_button(self):
         return self.draw_text("Main Menu", 100, HEIGHT//2 + 230)
 
@@ -352,7 +356,7 @@ class Game(Draw):
         self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(game_info.BLACK)
-        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
+        self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
     def undo(self, game:dol) -> None:
         self.screen.fill(game_info.BLACK)
@@ -360,7 +364,7 @@ class Game(Draw):
         self.prev_board = None
         self.energy += 1
         game.reset(deepcopy(self.board), self.energy)
-        self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game();
+        self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game();
         self.update_screen()
 
     def highlight_selected(self, highlight:bool, center:tuple[int, int], coords_circle:tuple[int, int]) -> tuple[int, int]:
@@ -376,7 +380,7 @@ class Game(Draw):
             highlight = False
             center = None
             self.screen.fill(game_info.BLACK)
-            self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
+            self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
         return highlight, center
     
@@ -396,6 +400,22 @@ class Game(Draw):
             self.draw_text("Total Moves: " + str(len(moves)-1), 110, TITLE_HEIGHT + 155) # display do numero total de jogadas
             self.update_screen()
             sleep(1)
+
+    def get_first_algorithm_move(self, node):
+        moves = []
+
+        while node:
+            moves.append(node.state)
+            node = node.parent
+
+        move = moves[-2]
+        pos = []
+        for i in range(0, len(self.board)):
+            for j in range(0, len(self.board[i])):
+                if self.board[i][j] != move[i][j]:
+                    pos.append((i,j))
+                    
+        return pos[0], pos[1]
 
     def run(self) -> Union[None, int]:
         game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy, self.max_height)
@@ -422,6 +442,19 @@ class Game(Draw):
                 if self.game_mode == 0:
 
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if self.hint_button.collidepoint(event.pos):
+                            algorithm = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
+                            moves = algorithm.AStar()
+                            (x1,y1), (x2,y2) = self.get_first_algorithm_move(moves)
+
+                            # highlight hint
+                            pygame.draw.circle(self.screen, game_info.PURPLE, self.rects[x1][y1].center, 23)
+                            pygame.draw.circle(self.screen, self.board[x1][y1], self.rects[x1][y1].center, 20)
+                            pygame.draw.circle(self.screen, game_info.PURPLE, self.rects[x2][y2].center, 23)
+                            pygame.draw.circle(self.screen, self.board[x2][y2], self.rects[x2][y2].center, 20)  
+
+                            self.update_screen()                      
+
                         if self.undo_button is not None and self.undo_button.collidepoint(event.pos):
                             self.undo(game)
                             continue
@@ -461,7 +494,7 @@ class Game(Draw):
                                         self.prev_board = None
                                         self.reset_level(game)
 
-                                    self.rects, self.reset, self.undo_button, self.main_menu = self.draw_game()
+                                    self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
                 
                 # algorithms
                 else:

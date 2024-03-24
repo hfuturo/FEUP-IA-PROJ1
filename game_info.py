@@ -47,7 +47,8 @@ WHITE: tuple[int, int, int] = (255, 255, 255)         #4
 YELLOW: tuple[int, int, int] = (255, 255, 0)          #5
 PINK: tuple[int, int, int] = (255, 0, 255)            #6
 AQUA: tuple[int, int, int] = (0, 255, 255)            #7
-ORANGE: tuple[int, int, int] = (255, 165, 0)         # highlight
+ORANGE: tuple[int, int, int] = (255, 165, 0)          # highlight selected circle
+PURPLE: tuple[int, int, int] = (160, 32, 240)         # highlight hint
 
 COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[int, int, int]] = {
     (RED, GREEN): YELLOW,
@@ -96,7 +97,7 @@ LEVEL2:list = [
         [1, 0, 1, 0],
         [3, 0, 0]
     ],
-    100,
+    21,
     "./images/lvl2goal.png",
     "Level 1: Finger Painting",
     [
