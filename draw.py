@@ -166,7 +166,7 @@ class MainMenu(Draw):
                         return game_info.LEVEL2
 
                     if level3.collidepoint(event.pos):
-                        pass
+                        return game_info.LEVEL3
 
 
 class FinalMenu(Draw):
@@ -224,7 +224,7 @@ class Game(Draw):
             if self.prev_board is not None:
                 undo = self.draw_undo()
             self.draw_goal()
-            self.draw_lines() # desenha linhas primeiro para circulos tapar o excesso
+            self.draw_lines()   # desenha linhas primeiro para circulos tapar o excesso
             l.append(self.draw_first_row())
             l.append(self.draw_second_row())
             l.append(self.draw_third_row())
@@ -232,7 +232,7 @@ class Game(Draw):
                 l.append(self.draw_forth_row())
                 l.append(self.draw_fifth_row())
             self.update_screen()
-
+            
             return l, reset, undo
     
     def draw_undo(self):
@@ -359,7 +359,7 @@ class Game(Draw):
 
                     bfs = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
 
-                    ret = bfs.BFS()
+                    ret = bfs.greedy()
 
                     if ret is not None:
                         print("not")
