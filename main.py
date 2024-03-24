@@ -10,7 +10,10 @@ if __name__ == "__main__":
         if level is None:
             break
 
-        game = draw.Game(level)
+        game_mode = level[1]
+        level = level[0]
+
+        game = draw.Game(level, game_mode)
         ret = game.run()
         if ret is None:
             break   

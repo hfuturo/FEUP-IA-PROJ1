@@ -24,6 +24,7 @@ class Algorithm:
         self.max_height = max_height
 
         self.has_compound_colors = self.check_compound_colors()
+        self.has_primary_colors = self.check_primary_colors()
         self.goal_board_info = self.get_board_info(self.goal)
 
     def get_board_info(self, board: list) -> dict:
@@ -44,6 +45,12 @@ class Algorithm:
 
         return info
 
+    def check_primary_colors(self) -> bool:
+        for row in self.goal:
+            for color in row:
+                if color == game_info.RED or color == game_info.GREEN or color == game_info.BLUE:
+                    return True
+        return False
 
     def check_compound_colors(self) -> bool:
         for i in range(0, len(self.state)):
@@ -191,7 +198,6 @@ class Algorithm:
                     l = self.get_colors_by_compound(k[0], deepcopy(board_info))
                     if l != []:
                         return [k[1]] + l
-        
         return []
 
     def manhattan(self, piece1: tuple[int, int], piece2: tuple[int, int]) -> int:
@@ -237,6 +243,19 @@ class Algorithm:
                 for (_,v) in game_info.COMPUND_COLORS.items():
                     if key == v:
                         return 10000000000000
+        
+
+        # se goal tem cor primaria e board atual nao tem cor primaria nunca explora esta node
+        found = False
+        if self.has_primary_colors:
+            for row in board:
+                for color in row:
+                    if color == game_info.RED or color == game_info.GREEN or color == game_info.BLUE:
+                        found = True
+                        break
+            
+            if not found:
+                return 10000000000000
 
         # calcula primeiro a distancia das cores que existem nas duas boards.
         # Se uma cor nao existir numa board, significa que é uma cor compund

@@ -4,7 +4,7 @@ import drop_of_light as dol
 import game_info
 from typing import Union
 from copy import deepcopy
-from time import sleep
+from time import sleep, time
 
 WIDTH: int = 800
 HEIGHT: int = 600
@@ -160,13 +160,40 @@ class MainMenu(Draw):
                         return []
 
                     if level1.collidepoint(event.pos):
-                        return game_info.LEVEL1
+                        ret = self.select_game_mode()
+                        return None if ret is None else [game_info.LEVEL1, ret]
 
                     if level2.collidepoint(event.pos):
-                        return game_info.LEVEL2
+                        ret = self.select_game_mode()
+                        return None if ret is None else [game_info.LEVEL2, ret]
 
                     if level3.collidepoint(event.pos):
-                        return game_info.LEVEL3
+                        ret = self.select_game_mode()
+                        return None if ret is None else [game_info.LEVEL3, ret]
+                    
+    def select_game_mode(self):
+        self.screen.fill(game_info.BLACK)
+
+        self.draw_text("Select game mode", WIDTH//2, TITLE_HEIGHT, "titulo")
+
+        mode = []
+        mode.append(self.draw_text("Manually", WIDTH//2, HEIGHT//2 - 60))
+        mode.append(self.draw_text("BFS", WIDTH//2, HEIGHT//2 - 10))
+        mode.append(self.draw_text("DFS", WIDTH//2, HEIGHT//2 + 40))
+        mode.append(self.draw_text("Greedy", WIDTH//2, HEIGHT//2 + 90))
+
+        self.update_screen()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return None
+                
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for i in range(0, len(mode)):
+                        if mode[i].collidepoint(event.pos):
+                            return i
 
 
 class FinalMenu(Draw):
@@ -197,8 +224,9 @@ class FinalMenu(Draw):
                         return 1
 
 class Game(Draw):
-    def __init__(self, board: list) -> None:
+    def __init__(self, board: list, game_mode: int ) -> None:
         super().__init__()
+        self.game_mode = game_mode
         self.level_info = board
         self.board, self.energy, image_path, self.title, self.goal, self.max_height = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
@@ -335,86 +363,103 @@ class Game(Draw):
             self.rects, self.reset, self.undo_button = self.draw_game()
 
         return highlight, center
+    
+    def show_algorithm_moves(self, node, time: int) -> None:
+        moves = []
+
+        while node:
+            moves.append(node.state)
+            node = node.parent
+
+        moves.reverse()
+        for move in moves:
+            self.board = move
+            self.screen.fill(game_info.BLACK)
+            self.draw_game()
+            self.draw_text("Time: " + str(time) + "s", 100, TITLE_HEIGHT + 105) # display do tempo no ecra
+            self.draw_text("Total Moves: " + str(len(moves)-1), 110, TITLE_HEIGHT + 155) # display do numero total de jogadas
+            self.update_screen()
+            sleep(1)
 
     def run(self) -> Union[None, int]:
         game = dol.DropOfLight(deepcopy(self.board), self.goal, self.energy, self.max_height)
 
         highlight = False
         center = None
-
+        finished_algo = False
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return None
-
+                
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.reset.collidepoint(event.pos):
                         self.reset_level(game)
+                        finished_algo = False
                         continue
 
-                    if self.undo_button is not None and self.undo_button.collidepoint(event.pos):
-                        self.undo(game)
-                        continue
+                # manually
+                if self.game_mode == 0:
 
-                    bfs = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if self.undo_button is not None and self.undo_button.collidepoint(event.pos):
+                            self.undo(game)
+                            continue
 
-                    ret = bfs.greedy()
+                        for i in range(0, len(self.rects)):
+                            for j in range(0, len(self.rects[i])):
+                                if self.rects[i][j].collidepoint(event.pos):
 
-                    if ret is not None:
-                        print("not")
-                    else:
-                        print("None")
+                                    #highlight a circulo que user clique
+                                    highlight, center = self.highlight_selected(highlight, center, (i,j))
 
-                    l = []
-                    while ret:
-                        l.append(ret.state)
-                        ret = ret.parent
-
-                    l.reverse()
-                    for i in l:
-                        self.board = i
-                        self.draw_game()
-                        self.update_screen()
-                        print("Updated")
-                        sleep(1)
-
-                    for i in range(0, len(self.rects)):
-                        for j in range(0, len(self.rects[i])):
-                            if self.rects[i][j].collidepoint(event.pos):
-
-                                #highlight a circulo que user clique
-                                highlight, center = self.highlight_selected(highlight, center, (i,j))
-
-                                ret = game.handle_piece_selected((i,j))
-                                if ret is None:
-                                    break
-                                
-                                center = None
-                                highlight = False
-                                self.prev_board = deepcopy(self.board)
-                                self.board, self.energy = ret
-                                self.screen.fill(game_info.BLACK)
-
-                                # win
-                                if self.board == []:
-                                    win_menu = FinalMenu("You Won")
-                                    ret = win_menu.run()
-                                    if ret != 0:
-                                        return ret
-                                    self.prev_board = None
-                                    self.reset_level(game)
+                                    ret = game.handle_piece_selected((i,j))
+                                    if ret is None:
+                                        break
                                     
-                                # lose
-                                if self.energy == 0:
-                                    lose_menu = FinalMenu("You Lost")
-                                    ret = lose_menu.run()
-                                    if ret != 0:
-                                        return ret
-                                    self.prev_board = None
-                                    self.reset_level(game)
+                                    center = None
+                                    highlight = False
+                                    self.prev_board = deepcopy(self.board)
+                                    self.board, self.energy = ret
+                                    self.screen.fill(game_info.BLACK)
 
-                                self.rects, self.reset, self.undo_button = self.draw_game()
+                                    # win
+                                    if self.board == []:
+                                        win_menu = FinalMenu("You Won")
+                                        ret = win_menu.run()
+                                        if ret != 0:
+                                            return ret
+                                        self.prev_board = None
+                                        self.reset_level(game)
+                                        
+                                    # lose
+                                    if self.energy == 0:
+                                        lose_menu = FinalMenu("You Lost")
+                                        ret = lose_menu.run()
+                                        if ret != 0:
+                                            return ret
+                                        self.prev_board = None
+                                        self.reset_level(game)
 
+                                    self.rects, self.reset, self.undo_button = self.draw_game()
+                
+                # algorithms
+                else:
+                    if finished_algo:
+                        continue
 
+                    algorithm = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
 
+                    begin = time()
+                    if self.game_mode == 1:
+                        moves = algorithm.BFS()
+                    elif self.game_mode == 2:
+                        moves = algorithm.DFS()
+                    elif self.game_mode == 3:
+                        moves = algorithm.greedy()
+                    end = time()
+
+                    elapsed_time = end - begin
+                    self.show_algorithm_moves(moves, round(elapsed_time, 2 if elapsed_time > 0.01 else 3))
+                    finished_algo = True
