@@ -411,7 +411,14 @@ class Algorithm:
             Executa o algoritmo A* com a melhor heuristica por default.
         """
         return self.run_informed_algorithm(self.heuristic2 if best_heuristic else self.heuristic1, self.get_depth)
-
+    
+    def WeightedAStar(self, best_heuristic:bool = True) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo Weighted AStar
+        """
+        f = lambda x : (self.heuristic2(x) if best_heuristic else self.heuristic1(x)) * 2
+        return self.run_informed_algorithm(f, self.get_depth)
+    
     def run_informed_algorithm(self, heuristic1: function, heuristic2: function) -> Union[TreeNode, None]:
         """
             Corre a parte "pesada" do algoritmo
