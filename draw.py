@@ -238,11 +238,13 @@ class MainMenu(Draw):
         self.draw_text("Select game mode", WIDTH//2, TITLE_HEIGHT, "titulo")
 
         mode = []
-        mode.append(self.draw_text("Manually", WIDTH//2, HEIGHT//2 - 60))
-        mode.append(self.draw_text("BFS", WIDTH//2, HEIGHT//2 - 10))
-        mode.append(self.draw_text("DFS", WIDTH//2, HEIGHT//2 + 40))
-        mode.append(self.draw_text("Greedy", WIDTH//2, HEIGHT//2 + 90))
-        mode.append(self.draw_text("A*", WIDTH//2, HEIGHT//2 + 140))
+        mode.append(self.draw_text("Manually", WIDTH//2, HEIGHT//2 - 130))
+        mode.append(self.draw_text("BFS", WIDTH//2, HEIGHT//2 - 80))
+        mode.append(self.draw_text("DFS", WIDTH//2, HEIGHT//2 - 30))
+        mode.append(self.draw_text("Greedy (bad heuristic)", WIDTH//2, HEIGHT//2 + 20))
+        mode.append(self.draw_text("Greedy (good heuristic)", WIDTH//2, HEIGHT//2 + 70))
+        mode.append(self.draw_text("A* (bad heuristic)", WIDTH//2, HEIGHT//2 + 120))
+        mode.append(self.draw_text("A* (good heuristic)", WIDTH//2, HEIGHT//2 + 170))
 
         go_back = self.draw_text("Go back", WIDTH//2, HEIGHT - 50)
 
@@ -673,14 +675,19 @@ class Game(Draw):
                         continue
 
                     algorithm = algorithms.Algorithm(self.board, self.goal, self.energy, self.max_height)
+
                     begin = time()
                     if self.game_mode == 1:
                         moves = algorithm.BFS()
                     elif self.game_mode == 2:
                         moves = algorithm.DFS()
-                    elif self.game_mode == 3:
+                    elif self.game_mode == 3: # greedy bad heuristic
+                        moves = algorithm.greedy(False)
+                    elif self.game_mode == 4: # greedy good heuristic
                         moves = algorithm.greedy()
-                    elif self.game_mode == 4:
+                    elif self.game_mode == 5: # A* bad heuristic
+                        moves = algorithm.AStar(False)
+                    elif self.game_mode == 6: # A* good heuristic
                         moves = algorithm.AStar()
                     end = time()
 

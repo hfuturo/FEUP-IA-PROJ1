@@ -286,7 +286,7 @@ class Algorithm:
 
         return min_distance
 
-    def AStar_heuristic(self, board: list) -> int:
+    def heuristic2(self, board: list) -> int:
         """
             Heurística utilizada no algoritmo A*.
 
@@ -358,10 +358,8 @@ class Algorithm:
 
         return total
 
-    def greedy_heuristic(self, board: list) -> int:
+    def heuristic1(self, board: list) -> int:
         """
-            Heuristica utilizada no algoritmo greedy.
-
             Obtém o número de peças fora do sitio em relação ao tabuleiro final e a diferença entre cores compostas
             entre o tabuleiro atual e o tabuleiro final.
         """
@@ -402,13 +400,25 @@ class Algorithm:
 
         return total - 1
 
-    def greedy(self) -> Union[TreeNode, None]:
+    def greedy(self, best_heuristic:bool = True) -> Union[TreeNode, None]:
         """
-            Executa o algoritmo greedy.
+            Executa o algoritmo greedy com a melhor heuristica por default.
+        """
+        return self.run_informed_algorithm(self.heuristic2 if best_heuristic else self.heuristic1, lambda _: 0)
+
+    def AStar(self, best_heuristic:bool = True) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo A* com a melhor heuristica por default.
+        """
+        return self.run_informed_algorithm(self.heuristic2 if best_heuristic else self.heuristic1, self.get_depth)
+
+    def run_informed_algorithm(self, heuristic1: function, heuristic2: function) -> Union[TreeNode, None]:
+        """
+            Corre a parte "pesada" do algoritmo
         """
 
         root = TreeNode(self.state)
-        nodes_to_visit = [(root, self.greedy_heuristic(self.state))]
+        nodes_to_visit = [(root, heuristic1(self.state) + heuristic2(root))]
         visited_states = [self.state]
 
         while nodes_to_visit:
@@ -422,30 +432,6 @@ class Algorithm:
                     new_state = TreeNode(state, node)
                     node.add_child(new_state)
                     visited_states.append(new_state.state)
-                    nodes_to_visit.append((new_state, self.greedy_heuristic(new_state.state)))
-
-            nodes_to_visit = sorted(nodes_to_visit, key= lambda x : x[1], reverse=True)
-
-    def AStar(self) -> Union[TreeNode, None]:
-        """
-            Executa o algoritmo A*
-        """
-
-        root = TreeNode(self.state)
-        nodes_to_visit = [(root, self.AStar_heuristic(self.state) + self.get_depth(root))]
-        visisted_states = [self.state]
-
-        while nodes_to_visit:
-
-            node, _ = nodes_to_visit.pop()
-            if self.check_win(node.state):
-                return node
-        
-            for state in self.next_states(node.state):
-                if state not in visisted_states:
-                    new_state = TreeNode(state, node)
-                    node.add_child(new_state)
-                    visisted_states.append(new_state.state)
-                    nodes_to_visit.append((new_state, self.AStar_heuristic(new_state.state) + self.get_depth(new_state)))
-
-            nodes_to_visit = sorted(nodes_to_visit, key= lambda x : x[1], reverse=True)
+                    nodes_to_visit.append((new_state, heuristic1(new_state.state) + heuristic2(new_state)))
+            
+            nodes_to_visit = sorted(nodes_to_visit, key= lambda x: x[1], reverse=True)
