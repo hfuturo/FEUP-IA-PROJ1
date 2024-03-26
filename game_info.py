@@ -1,3 +1,4 @@
+# Regras do jogo
 RULES_TEXT:list = [
     ["Objective: Rearrange the photons in the grid",
      "to match the Goal grid before running out of energy.",
@@ -13,6 +14,7 @@ RULES_TEXT:list = [
        "will blend into a compound photon:"]
 ]
 
+# Todas as jogadas possíveis que se podem efetuar.
 POSSIBLE_MOVES: dict[tuple[int, int], list[tuple[int, int]]] = {
     (0,0): [(0,1), (1,0), (1,1)],
     (0,1): [(0,0), (0,2), (1,1), (1,2)],
@@ -35,6 +37,7 @@ POSSIBLE_MOVES: dict[tuple[int, int], list[tuple[int, int]]] = {
     (4,2): [(3,2), (3,3), (4,1)]
 }
 
+# Representação de todas as cores que são utilizadas na representação do jogo.
 BLACK: tuple[int, int, int] = (0, 0, 0)               
 DARKGREY: tuple[int, int, int] = (169, 169, 169)      # para as linhas
 LIGHTGREY: tuple[int, int, int] = (211, 211, 211)     # para exemplos das regras
@@ -49,6 +52,7 @@ AQUA: tuple[int, int, int] = (0, 255, 255)            #7
 ORANGE: tuple[int, int, int] = (255, 165, 0)          # highlight selected circle
 PURPLE: tuple[int, int, int] = (160, 32, 240)         # highlight hint
 
+# Como obter as cores compound com as cores primárias.
 COMPUND_COLORS: dict[tuple[tuple[int, int, int], tuple[int, int, int]], tuple[int, int, int]] = {
     (RED, GREEN): YELLOW,
     (GREEN, RED): YELLOW,
