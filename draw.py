@@ -332,6 +332,7 @@ class Game(Draw):
         self.level_info = board
         self.board, self.energy, image_path, self.title, self.goal, self.max_height = self.parse_level(board)
         self.image = pygame.transform.scale(pygame.image.load(image_path), (200, 150))
+        self.add_color_image = pygame.transform.scale(pygame.image.load("./images/add_colors.png"), (250, 150))
         self.prev_board = None
         self.rects, self.reset, self.undo_button, self.main_menu, self.hint_button = self.draw_game()
 
@@ -369,6 +370,7 @@ class Game(Draw):
             if self.prev_board is not None:
                 undo = self.draw_undo()
 
+            self.draw_add_color_example()
             self.draw_goal()
             self.draw_lines()   # desenha linhas primeiro para circulos tapar o excesso
 
@@ -384,11 +386,17 @@ class Game(Draw):
             
             return l, reset, undo, main_menu, hint
     
+    def draw_add_color_example(self) -> None:
+        """
+            Desenha a imagem que mostra como obter cores compostas.
+        """
+        self.screen.blit(self.add_color_image, (WIDTH//2 + 150, HEIGHT//2 + 150))
+
     def draw_hint_button(self) -> pygame.Rect :
         """
             Desenha o botão "Hint".
         """
-        return self.draw_text("Hint", WIDTH//2 + 295, HEIGHT//2 + 170)
+        return self.draw_text("Hint", WIDTH//2 + 277, HEIGHT//2 + 110)
 
     def draw_main_menu_button(self) -> pygame.Rect :
         """
