@@ -18,7 +18,6 @@ class TreeNode:
         self.state = state
         self.parent = parent
         self.children = []
-        self.visited = False
 
     def add_child(self, child:TreeNode ) -> None:
         """

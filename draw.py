@@ -706,6 +706,5 @@ class Game(Draw):
                     end = time()
 
                     elapsed_time = end - begin
-                    # self.show_algorithm_moves(moves, round(elapsed_time, 2 if elapsed_time > 0.01 else 3))
-                    self.show_algorithm_moves(moves, round(elapsed_time, 5))
+                    self.show_algorithm_moves(moves, round(elapsed_time, 2 if elapsed_time > 0.01 else 3))
                     finished_algo = True
