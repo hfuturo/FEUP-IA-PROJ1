@@ -196,6 +196,7 @@ class MainMenu(Draw):
         level1 = self.draw_text("Level 1", WIDTH//2, HEIGHT//2 - 60)
         level2 = self.draw_text("Level 2", WIDTH//2, HEIGHT//2 - 10)
         level3 = self.draw_text("Level 3", WIDTH//2, HEIGHT//2 + 40)
+        level4 = self.draw_text("Level 4", WIDTH//2, HEIGHT//2 + 90)
         main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT - 50)
 
         self.update_screen()
@@ -227,6 +228,12 @@ class MainMenu(Draw):
                         if ret == -1:
                             return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL3, ret]
+                    
+                    if level4.collidepoint(event.pos):
+                        ret = self.select_game_mode()
+                        if ret == -1:
+                            return self.draw_level_menu()
+                        return None if ret is None else [game_info.LEVEL4, ret]
                     
     def select_game_mode(self) -> Union[int, None]:
         """

@@ -328,7 +328,7 @@ class Algorithm:
         # Se uma cor nao existir numa board, significa que é uma cor compund
         for key in goal_info:
             if key in board_info:
-                while len(goal_info[key]):
+                while len(goal_info[key]) and len(board_info[key]):
                     min_distance = self.find_best_move(key, key, board_info, goal_info)
                     total += min_distance
                     
@@ -341,6 +341,10 @@ class Algorithm:
             while len(goal_info[key]):
                 colors = self.get_colors_by_compound(key, deepcopy(board_info))
 
+                # possui cores que nao é suposto, logo nunca vamos explorar esta node
+                if len(colors) == 0:
+                    return 10000000000000
+                
                 min_distance = self.find_best_move(colors[0], key, board_info, goal_info, False)
                 total += min_distance
                 min_distance = self.find_best_move(colors[1], key, board_info, goal_info)

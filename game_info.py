@@ -79,7 +79,7 @@ LEVEL1:list = [
     ],
     8,
     "./images/lvl1goal.png",
-    "Level 1: Finger Painting",
+    "Level 1",
     [
         [2, 0, 0],
         [0, 0, 0, 0],
@@ -98,7 +98,7 @@ LEVEL2:list = [
     ],
     9,
     "./images/lvl2goal.png",
-    "Level 1: Finger Painting",
+    "Level 2",
     [
         [0, 0, 0],
         [0, 0, 5, 0],
@@ -119,13 +119,34 @@ LEVEL3:list = [
     ],
     21,
     "./images/lvl3goal.png",
-    "Level 1: Finger Painting",
+    "Level 3",
     [
         [1, 3, 1],
         [0, 0, 0, 0],
         [1, 0, 2, 0, 3],
         [0, 0, 0, 2],
         [2, 0, 0]
+    ],
+    5
+]
+
+LEVEL4: list = [
+    [
+        [1, 3, 2],
+        [1, 0, 0, 0],
+        [3, 2, 1, 0, 2],
+        [3, 3, 2, 1],
+        [1, 0, 3]
+    ],
+    17,
+    "./images/lvl4goal.png",
+    "Level 4",
+    [
+        [5, 0, 3],
+        [0, 6, 0, 4],
+        [7, 0, 0, 1, 0],
+        [0, 2, 0, 0],
+        [0, 0, 6]
     ],
     5
 ]
