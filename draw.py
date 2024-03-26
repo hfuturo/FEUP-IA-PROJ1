@@ -520,6 +520,7 @@ class Game(Draw):
             Dá reset ao tabuleiro.
         """
         
+        self.prev_board = None
         self.board, self.energy, _, self.title, self.goal, _ = self.parse_level(self.level_info)
         game.reset(deepcopy(self.board), self.energy)
         self.screen.fill(game_info.BLACK)
