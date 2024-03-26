@@ -287,8 +287,6 @@ class Algorithm:
 
     def heuristic2(self, board: list) -> int:
         """
-            Heurística utilizada no algoritmo A*.
-
             Esta heuristica vai calcular a soma das distâncias das cores atuais à posição da cor no tabuleiro final.
             Esta heuristica não continua a explorar uma node que tenha cores compostas se o estado final não tem cores compostas
             e também não explora uma node que não tem cores primárias se o estado final tiver cores primárias.
