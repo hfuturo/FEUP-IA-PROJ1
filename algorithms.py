@@ -197,7 +197,7 @@ class Algorithm:
         """
             Executa o algoritmo Uniform Cost Search (UCS)
         """
-        
+
         root = TreeNode(self.state)
         queue = deque([(root, 0)])
         visited_states = [self.state]
@@ -246,6 +246,48 @@ class Algorithm:
                 visited_states.append(state)
         
         return None
+    
+    def DLS(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo Depth-Limited Search (DLS)
+        """
+
+        root = TreeNode(self.state)
+        stack = deque([(root, 0)])
+
+        while stack:
+            node, depth = stack.pop()
+
+            if self.check_win(node.state):
+                return node
+
+            if depth >= self.energy:
+                continue
+            
+            if self.is_cycle(node):
+                continue
+
+            for state in self.next_states(node.state):    
+                new_state = TreeNode(state, node)
+                node.add_child(new_state)
+                stack.append((new_state, depth+1))
+        
+        return None
+    
+    def is_cycle(self, node: TreeNode) -> bool:
+        """
+            Verifica se esta node pertence a um ciclo.
+        """
+        
+        original_state = deepcopy(node.state)
+
+        node = node.parent
+        while node:
+            if node.state == original_state:
+                return True
+            node = node.parent
+
+        return False
 
     def get_colors_by_compound(self, compound_color: tuple[int, int, int], board_info: dict) -> list:
         """

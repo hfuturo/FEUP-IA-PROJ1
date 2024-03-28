@@ -197,6 +197,7 @@ class MainMenu(Draw):
         level2 = self.draw_text("Level 2", WIDTH//2, HEIGHT//2 - 10)
         level3 = self.draw_text("Level 3", WIDTH//2, HEIGHT//2 + 40)
         level4 = self.draw_text("Level 4", WIDTH//2, HEIGHT//2 + 90)
+        level5 = self.draw_text("Level 5", WIDTH//2, HEIGHT//2 + 140)
         main_menu = self.draw_text("Main Menu", WIDTH//2, HEIGHT - 50)
 
         self.update_screen()
@@ -235,6 +236,12 @@ class MainMenu(Draw):
                             return self.draw_level_menu()
                         return None if ret is None else [game_info.LEVEL4, ret]
                     
+                    if level5.collidepoint(event.pos):
+                        ret = self.select_game_mode()
+                        if ret == -1:
+                            return self.draw_level_menu()
+                        return None if ret is None else [game_info.LEVEL5, ret]
+                    
     def select_game_mode(self) -> Union[int, None]:
         """
             Desenha os game modes e dá "handle" à lógica.
@@ -255,6 +262,7 @@ class MainMenu(Draw):
         mode.append(self.draw_text("Weighted A* (bad h)", WIDTH//2 + WIDTH//4, HEIGHT//2 + 70))
         mode.append(self.draw_text("Weighted A* (good h)", WIDTH//2 + WIDTH//4, HEIGHT//2 + 120))
         mode.append(self.draw_text("UCS", WIDTH//2, HEIGHT//2 - 30))
+        mode.append(self.draw_text("DLS", WIDTH//2, HEIGHT//2 + 20))
 
         go_back = self.draw_text("Go back", WIDTH//2, HEIGHT - 50)
 
@@ -384,7 +392,7 @@ class Game(Draw):
                 l.append(self.draw_fifth_row())
 
             self.update_screen()
-            
+
             return l, reset, undo, main_menu, hint
     
     def draw_add_color_example(self) -> None:
@@ -714,6 +722,8 @@ class Game(Draw):
                         moves = algorithm.WeightedAStar()
                     elif self.game_mode == 9:
                         moves = algorithm.UCS()
+                    elif self.game_mode == 10:
+                        moves = algorithm.DLS()
 
                     end = time()
 

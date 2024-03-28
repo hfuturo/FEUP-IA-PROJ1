@@ -79,11 +79,28 @@ LEVEL1:list = [
     [
         [0, 1, 0],
         [0, 0, 0, 2],
+        [0, 0, 0, 2, 0]
+    ],
+    4,
+    "./images/lvl1goal.png",
+    "Level 1",
+    [
+        [0, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 2, 0, 2],
+    ],
+    3
+]
+
+LEVEL2:list = [
+    [
+        [0, 1, 0],
+        [0, 0, 0, 2],
         [3, 0, 0, 2, 0]
     ],
     8,
-    "./images/lvl1goal.png",
-    "Level 1",
+    "./images/lvl2goal.png",
+    "Level 2",
     [
         [2, 0, 0],
         [0, 0, 0, 0],
@@ -92,7 +109,7 @@ LEVEL1:list = [
     3
 ]
 
-LEVEL2:list = [
+LEVEL3:list = [
     [
         [0, 1, 0],
         [1, 1, 0, 2],
@@ -101,8 +118,8 @@ LEVEL2:list = [
         [0, 3, 0]
     ],
     9,
-    "./images/lvl2goal.png",
-    "Level 2",
+    "./images/lvl3goal.png",
+    "Level 3",
     [
         [0, 0, 0],
         [0, 0, 5, 0],
@@ -113,7 +130,7 @@ LEVEL2:list = [
     5
 ]
 
-LEVEL3:list = [
+LEVEL4:list = [
     [
         [2, 2, 0],
         [0, 0, 0, 0],
@@ -122,8 +139,8 @@ LEVEL3:list = [
         [3, 0, 0]
     ],
     21,
-    "./images/lvl3goal.png",
-    "Level 3",
+    "./images/lvl4goal.png",
+    "Level 4",
     [
         [1, 3, 1],
         [0, 0, 0, 0],
@@ -134,7 +151,7 @@ LEVEL3:list = [
     5
 ]
 
-LEVEL4: list = [
+LEVEL5: list = [
     [
         [1, 3, 2],
         [1, 0, 0, 0],
@@ -143,8 +160,8 @@ LEVEL4: list = [
         [1, 0, 3]
     ],
     17,
-    "./images/lvl4goal.png",
-    "Level 4",
+    "./images/lvl5goal.png",
+    "Level 5",
     [
         [5, 0, 3],
         [0, 6, 0, 4],
