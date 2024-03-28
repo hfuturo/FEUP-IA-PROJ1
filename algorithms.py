@@ -193,6 +193,34 @@ class Algorithm:
 
         return None
     
+    def UCS(self) -> Union[TreeNode, None]:
+        """
+            Executa o algoritmo Uniform Cost Search (UCS)
+        """
+        
+        root = TreeNode(self.state)
+        queue = deque([(root, 0)])
+        visited_states = [self.state]
+
+        while queue:
+            node, _ = queue.popleft()
+
+            if self.check_win(node.state):
+                return node
+            
+            for state in self.next_states(node.state):
+                if state in visited_states:
+                    continue
+
+                new_node = TreeNode(state, node)
+                node.add_child(new_node)
+                queue.append((new_node, self.get_depth(new_node)))
+                visited_states.append(new_node.state)
+
+            queue = deque(sorted(queue, key=lambda x: x[1]))
+
+        return None
+    
     def DFS(self) -> Union[TreeNode, None]:
         """
             Executa o algoritmo Depth-First Search

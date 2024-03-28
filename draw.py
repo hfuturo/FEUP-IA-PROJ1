@@ -254,6 +254,7 @@ class MainMenu(Draw):
         mode.append(self.draw_text("A* (good h)", WIDTH//2 + WIDTH//4, HEIGHT//2 + 20))
         mode.append(self.draw_text("Weighted A* (bad h)", WIDTH//2 + WIDTH//4, HEIGHT//2 + 70))
         mode.append(self.draw_text("Weighted A* (good h)", WIDTH//2 + WIDTH//4, HEIGHT//2 + 120))
+        mode.append(self.draw_text("UCS", WIDTH//2, HEIGHT//2 - 30))
 
         go_back = self.draw_text("Go back", WIDTH//2, HEIGHT - 50)
 
@@ -711,6 +712,8 @@ class Game(Draw):
                         moves = algorithm.WeightedAStar(False)
                     elif self.game_mode == 8: # WA* good heuristic
                         moves = algorithm.WeightedAStar()
+                    elif self.game_mode == 9:
+                        moves = algorithm.UCS()
 
                     end = time()
 
