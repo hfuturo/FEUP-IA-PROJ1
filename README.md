@@ -12,7 +12,7 @@ Para correr o programa é necessário ter Python (3.9.6+) instalado, bem como Py
 
 ## Run
 
-Para correr o programa é necessário ter o `src` folder como `root` executar o ficheiro `main.py`.
+Para correr o programa é necessário ter o `src` folder como `root` e executar o ficheiro `main.py`.
 
 ## Instruções
 
