@@ -18,3 +18,5 @@ Para correr o programa é necessário ter o `src` folder como `root` e executar 
 
 Para utilizar este programa é necessário utilizar um rato/mousepad. Basta meter o rato em cima da opção e clicar com o lado esquerdo (mouse 1).
 Para instruções do jogo basta selecionar `Rules` no menu principal do jogo.
+
+## Nota: 20
